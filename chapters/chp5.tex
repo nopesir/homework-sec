@@ -1,0 +1,191 @@
+\appendix
+\chapter{User manual}
+This appendix explains how to correctly install and run the two implementations of the OAuth2 AuthZ Code Grant Flow: one using as provider Google/Facebook and the other one using a custom AuthZ/Resource Server.
+
+\minitoc
+
+\section{Software dependencies}
+\label{appa}
+Before installing and running the two implementations, there are some basic dependencies to install: \href{https://www.docker.com/}{\texttt{Docker}} and \texttt{Docker-Compose}.
+
+\subsection{Docker}
+\label{ublin}
+The Docker Documentation \cite{docker} explains how to correctly install Docker on Windows/Ubuntu/macOS.
+
+\paragraph{Ubuntu Linux (16.04 - 18.04 - 20.04)} First, all previous versions must be removed. 
+
+\noindent From the bash terminal:
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get remove docker docker-engine docker.io \
+      containerd runc
+\end{lstlisting}
+
+\noindent Update and install packages to install dependencies over HTTPS:
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get update
+\end{lstlisting}
+
+\vspace{1.0cm}
+
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get install \
+      apt-transport-https \
+      ca-certificates \
+      curl \
+      gnupg-agent \
+      software-properties-common
+\end{lstlisting}
+
+\noindent Add Docker’s official GPG key:
+\begin{lstlisting}[language=bash, showstringspaces=false, basicstyle=\ttfamily]
+  $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \ 
+    sudo apt-key add -
+\end{lstlisting}
+
+\noindent Set-up the \textbf{stable} repository:
+\begin{lstlisting}[language=bash, showstringspaces=false, basicstyle=\ttfamily]
+  $ sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+\end{lstlisting}
+
+\noindent Install Docker:
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get update
+  $ sudo apt-get install docker-ce docker-ce-cli containerd.io
+\end{lstlisting}
+
+\noindent Add the current user to the \texttt{docker} group:
+\begin{lstlisting}[language=bash]
+  $ sudo groupadd docker
+  $ sudo usermod -aG docker $USER
+\end{lstlisting}
+
+\noindent For different Linux distros or architectures, the \href{https://docs.docker.com/engine/install/}{Official Docs} is available.
+
+\paragraph{Windows 10 Pro/Enterprise ($\geq Build 15063$)} The steps to follows are pretty straightforward:
+
+\begin{itemize}
+    \item[1.] Download Docker Desktop from \href{https://hub.docker.com/editions/community/docker-ce-desktop-windows/}{this} page.
+    \item[2.] Ensures that Hyper-V is enabled (see \href{https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v}{here}).
+    \item[3.] Double-click on the installer downloaded.
+    \item[4.] Follow the standard installation procedure.
+\end{itemize}
+
+\paragraph{macOS ($\geq 10.13$)} Similarly to Windows:
+
+\begin{itemize}
+    \item[1.] Download Docker Desktop from \href{https://hub.docker.com/editions/community/docker-ce-desktop-mac/}{this} page.
+    \item[2.] Double-click on the \textit{.IMG} downloaded.
+    \item[3.] Drag the application in the Application folder.
+\end{itemize}
+
+\newpage
+
+\subsection{Docker-Compose}
+For Windows and macOS systems, \texttt{docker-compose} is included in the Docker Desktop installation.\\
+On Ubuntu Linux, the steps follow.
+
+\noindent Install PIP:
+\begin{lstlisting}[language=bash]
+  $ sudo apt update
+  $ sudo apt install python3-pip
+\end{lstlisting}
+
+\noindent Upgrade PIP:
+\begin{lstlisting}[language=bash]
+  $ sudo pip3 install -U pip
+\end{lstlisting}
+
+\noindent Install docker-compose:
+\begin{lstlisting}[language=bash]
+  $ sudo pip3 install docker-compose
+\end{lstlisting}
+
+\section{Installation and use}
+Once that \texttt{docker} and \texttt{docker-compose} are installed, the installation and use are not OS-dependent. Indeed, Docker Desktop (Windows/macOS) needs to be started as application first.
+
+\subsection{OAuth2 with Google/Facebook}
+In order to install and run the implementation example that interacts with Google/Facebook, download from \href{https://github.com/nopesir/oauth-hw-security/releases}{here} the latest release of the \texttt{docker-compose.yaml} file, available in the assets as shown in fig. \ref{fig:rel1} (there are other files, but we only need the \texttt{.yaml} file).
+
+\begin{figure}[h!]
+    \centering
+    \fbox{\includegraphics[scale=0.55]{chapters/images/chp5/release1.png}}
+    \caption{GitHub Releases page: where to download the \texttt{docker-compose.yaml} file}
+    \label{fig:rel1}
+\end{figure}
+
+\newpage
+
+\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, open the terminal and type:
+\begin{lstlisting}[language=bash]
+  $ docker-compose up
+\end{lstlisting}
+
+\noindent If all the dependencies are correctly installed and the docker daemon is running, \texttt{docker-compose} will automatically pull the containers, create the network namespace and start everything. The first run needs some time to download, but the next ones will use the downloaded data and will boot up the containers in a few seconds. The application now is running. From the browser, visit \texttt{http://localhost:9090} and the homepage will be displayed (fig.\ref{fig:home1}).
+
+\begin{figure}[h!]
+    \centering
+    \fbox{\includegraphics[scale=0.48]{chapters/images/chp5/screen1.png}}
+    
+    \caption{The homepage of the first implementation example}
+    \label{fig:home1}
+\end{figure}
+
+\noindent To stop the application, simply use \texttt{Crtl+C} command on the terminal and finally a:
+\begin{lstlisting}[language=bash]
+  $ docker-compose down
+\end{lstlisting}
+
+\noindent To safely detach all the resources.
+The full screen video captioning of the example is available \href{https://github.com/nopesir/oauth-hw-security/releases/download/v0.2-alpha/hw-security-screen.mp4}{here}. 
+
+\subsubsection{Troubleshooting}
+\begin{itemize}
+    \item Ensure to have ports \texttt{9090/tcp}, \texttt{8080/tcp} and \texttt{3306/tcp} available.
+    \item Facebook login could give an error: Facebook App in test mode are accessible with OAuth2 only by the developer Facebook account (see \href{https://developers.facebook.com/docs/apps/managing-development-cycle/#step1}{here}), thus some test users must be added to the Facebook Developer's page. Use Google instead.
+    \item Ensure to have at least 8GB of RAM on the machine.
+    \item (Windows/macOS) Ensure that the Docker Desktop program is started.
+    \item (Ubuntu Linux) Ensure that the Docker deamon is running.
+    \item For further information, see the \href{https://docs.docker.com/}{Docker} or the \href{https://docs.docker.com/compose/}{Docker Compose} documentations.
+\end{itemize}
+
+\newpage
+
+\subsection{OAuth2 with custom AuthZ/Resource servers}
+To install and run the second example, the steps are almost the same as the previous subsection. Download from \href{https://github.com/nopesir/oauth-hw-security-custom/releases}{here} the latest release of the \texttt{docker-compose.yaml} file (choose a different folder to put it, or remove the previous \texttt{.yaml} file), available in the assets of the release.
+
+\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, open the terminal and type:
+\begin{lstlisting}[language=bash]
+  $ docker-compose up
+\end{lstlisting}
+
+\noindent If all the dependencies are correctly installed and the docker daemon is running, \texttt{docker-compose} will automatically pull the containers, create the network namespace and start everything. 
+The first run needs some time to download, but the next ones will use the downloaded data and will boot up the containers in seconds. The application now is running. From the browser, visit \texttt{http://localhost:9180} and the homepage will be displayed (fig.\ref{fig:home2}).
+
+\begin{figure}[h!]
+    \centering
+    \fbox{\includegraphics[scale=0.50]{chapters/images/chp5/screen2.png}}
+    \caption{The homepage of the second implementation example}
+    \label{fig:home2}
+\end{figure}
+
+\noindent Since this is an educational example, all the information are in plain text in the homepage. The first thing to do is retrieve the access token by clicking on the link. Then, a log-in is necessary. The only available credentials are:
+
+\begin{itemize}
+    \item Username: \texttt{appuser}
+    \item Password: \texttt{appusersecret}
+\end{itemize}
+
+
+\noindent After the log-in, it is displayed a checkbox in order to select what authorizations will be delegated to the client app. Select \texttt{resorce.read}, \texttt{resource.write} or both. 
+Finally, the user will be redirected to the homepage with an access token. Now, it is time to request the resource using the two links at the end of the page. If the client is authorized, it will print a simple message, otherwise a 403 HTTP error is displayed (Forbidden). In addiction, it is available the refresh token flow based on the authorized resources or a subset of them (e.g. if someone has the access token for both scopes, it can make the token refresh for only one too). To stop the application, simply use \texttt{Crtl+C} command on the terminal and finally a:
+\begin{lstlisting}[language=bash]
+  $ docker-compose down
+\end{lstlisting}
+
+
+
+\noindent To safely detach all the resources.
+The full screen video captioning of the example is available \href{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v0.1-alpha/hw-security-custom-screen.mp4}{here}. 

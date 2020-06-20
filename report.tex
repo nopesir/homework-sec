@@ -1,0 +1,61 @@
+\documentclass[12pt]{report}
+
+\usepackage{lineno}
+%\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage[Sonny]{fncychap}
+\usepackage[a4paper, left=2cm, right=2cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{mathptmx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{chemformula}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+%\usepackage{cite}
+\usepackage[colorlinks, linkcolor=black, anchorcolor=black, citecolor=black]{hyperref}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{minitoc} 
+\usepackage{csquotes}
+\usepackage{listings}
+\usepackage{graphicx}
+
+\usepackage{csquotes}
+\usepackage[citestyle=ieee, sorting=none]{biblatex}
+\addbibresource{repo.bib}
+
+\setlength{\parskip}{0.5em}
+\title{OAuth2: Protocol Analisys and Implementation}
+\author{\textup{Luigi Ferrettino\\[0.2cm] S254300}}
+
+\linenumbers
+
+\begin{document}
+    \nocite{*}
+    \dominitoc
+    
+    \input{title/title.tex}
+    
+    \tableofcontents
+    
+    \listoffigures
+    
+    \newpage
+
+    \input{chapters/chp1.tex}
+
+    \input{chapters/chp2.tex}
+    
+    \input{chapters/chp3.tex}
+    
+    \input{chapters/chp4.tex}
+    
+    \input{chapters/chp5.tex}
+    
+    \input{chapters/chp6.tex}
+
+    \printbibliography[title=Bibliography and Sitography]
+    
+    
+    
+
+\end{document}
