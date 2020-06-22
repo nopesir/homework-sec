@@ -20,7 +20,11 @@
 \usepackage{graphicx}
 
 \usepackage{csquotes}
-\usepackage[citestyle=ieee, sorting=none]{biblatex}
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sorting=none
+]{biblatex}
 \addbibresource{repo.bib}
 
 \setlength{\parskip}{0.5em}
@@ -30,7 +34,7 @@
 \linenumbers
 
 \begin{document}
-    \nocite{*}
+    %\nocite{*}
     \dominitoc
     
     \input{title/title.tex}

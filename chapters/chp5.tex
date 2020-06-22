@@ -23,11 +23,6 @@ The Docker Documentation \cite{docker} explains how to correctly install Docker 
 \noindent Update and install packages to install dependencies over HTTPS:
 \begin{lstlisting}[language=bash]
   $ sudo apt-get update
-\end{lstlisting}
-
-\vspace{1.0cm}
-
-\begin{lstlisting}[language=bash]
   $ sudo apt-get install \
       apt-transport-https \
       ca-certificates \
@@ -42,7 +37,7 @@ The Docker Documentation \cite{docker} explains how to correctly install Docker 
     sudo apt-key add -
 \end{lstlisting}
 
-\noindent Set-up the \textbf{stable} repository:
+\noindent Set-up the \textbf{stable} repository (change the \texttt{arch} param according to the architecture):
 \begin{lstlisting}[language=bash, showstringspaces=false, basicstyle=\ttfamily]
   $ sudo add-apt-repository \
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \

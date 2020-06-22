@@ -100,7 +100,7 @@ The \textbf{authorization endpoint} is used by the client to obtain authorizatio
 The \textbf{token endpoint} has the role of waiting for the client in order to return an access token in exchange of an authorization code or a refresh token. That kind of endpoint is not used in the implicit grant type (see section \ref{section22}), because in this case the token is issued directly.
 
 \section{Client-side flow (untrusted)}
-So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 3.1 of the RFC-6749 \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
+So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the RFC-6749 \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -235,6 +235,8 @@ The AuthZ code grant is used to retrieve access and (optional) refresh tokens an
 \end{itemize}
 
 It must be noticed that, with respect to the implicit grant flow, in addition to the steps (A) and (B), now step (C) too is divided because it passes through the \textit{user-agent}.
+
+
 
 \vspace{0.5cm}
 
