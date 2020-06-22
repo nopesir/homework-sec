@@ -68,10 +68,10 @@ Tokens granted to untrusted clients are inherently insecure for these reasons. K
 The application's client credentials and the received tokens are sensitive properties. They must keep these as secure as possible, making sure not to expose them to users. It is assumed that, if a user can see them, an attacker can too. If an attacker can get hold of the application's client credentials, they can impersonate the client. If an attacker can get hold of a granted access token for a user, they can impersonate that user. It is best to keep these out of reach of the users entirely. This is best done by using a back-end server to store and transmit these values, never exposing them to the client.
 
 \section{Common attacks analysis}
-\label{csrf}
 After some security best practices to keep the application secure, it is now time to take a look at some common attacks against \textit{OAuth2} clients that everyone should be aware of. Furthermore, they will also examined mitigation techniques that can be used to protect the application from such attacks.
 
 \subsubsection{Cross-site request forgery}
+\label{csrf}
 CSRF is a powerful attack that has been gaining popularity with attackers in recent years. It involves tricking users into following a malicious link that performs an undesirable action on a trusted site without their knowledge, making use of their pre-existing sessions with that site.
 
 For instance, we can imagine a user that has just logged into his bank in his favorite web browser. Now, in another tab, he opens an e-mail from a malicious user with a link that says "See cats here!" which leads to \texttt{http://www.catloversheaven.com/}.
@@ -80,41 +80,35 @@ Since the user already has a valid session with their bank, this request will be
 attacker's account. This can be done in many ways: a malicious link that tricks victims into clicking, an \texttt{iframe} or \texttt{image} that automatically loads the malicious link, or even a redirection from an attacker-controlled page.
 
 How is this relevant all of this to an OAuth2 client application? 
-Reminding the first workflow with a typical authorization workflow previously discussed, it is possible to add another party (namely, the attacker). In this scenario (fig.~\ref{fig:csrf}), the attacker sends a malicious authorization code or access token directly to the client application's redirect URI. Since the client application can't verify that the token is valid, it continues to use it to communicate with the service provider. As the token is attacker-owned, this may result in the attacker gaining access to the protected resources of the user.
+Reminding the first workflow with a typical authorization workflow previously discussed, it is possible to add another party (namely, the attacker). In this scenario (Fig.~\ref{fig:csrf}), the attacker sends a malicious authorization code or access token directly to the client application's redirect URI. Since the client application can't verify that the token is valid, it continues to use it to communicate with the service provider. As the token is attacker-owned, this may result in the attacker gaining access to the protected resources of the user.
 This happens mainly because the client application has no way of verifying that the authorization code or access token that has been issued to it is the result of a valid request made by the application.
 
 \vspace{1.5cm}
 
-\begin{figure}[h!]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.65]{chapters/images/chp4/csrf.png}
-    \caption{CSRF on Oauth2}
+    \caption[caption]{CSRF on Oauth2.\\\hspace{\textwidth}Source:\hspace{0.2cm}\url{https://stackoverflow.com/a/42520213}}
     \label{fig:csrf}
 \end{figure}
 
 \vspace{1.5cm}
 
-To tackle this, the client application must make use of the \texttt{state} param.
+To avoid this attack, the client application must make use of the \texttt{state} param.
 In order to protect the client application against CSRF, the developer must implement the ability to verify whether the authorization codes or access tokens issued to it are valid (that is, they are the result of a valid authorization request by the user from the client application). To do this, the client application must generate a session-specific, unguessable value that it can pass along with its authorization request. When an authorization code or access token is returned back to the redirect URI, the application can validate that value to ensure that it was indeed used as part of a valid authorization request initiated by the user, and not by some attacker.
-The diagram in fig. demonstrates this process in action, showing both a successful and valid authorization flow, followed by an invalid, attacker-initiated flow.
 
-From the scenario, it can be seen that the flow it is mostly the same as before. However, it must be noticed that with the authorization request, the client is passing along that unique, session-based, unguessable \texttt{state} param value. In step 2, the user authenticates and the service provider will return an authorization code or access token back to the client application via the redirect URI, along with the \texttt{state} param value that was passed in with the initial request.
-
-There is an added step though, where the client application takes the returned \texttt{state} param and verifies that it is in fact a valid one. That is, it verifies that it was generated by the client application and used in a valid authorization request initiated by the user. If, and only if this is true, the application will continue to interact with the service provider with the given tokens.
-In the second workflow, the attacker does not know this \texttt{state} param value since it is session-based and unguessable. So, when the attacker sends a malicious authorization code or access token to the client application's redirect URI, they will be unable to send along a valid \texttt{state} param. Once the client application receives this malicious token, it sees that it has an invalid \texttt{state} param value, or none at all, and it halts the process right there. By simply generating and passing along a \texttt{state} param value and validating it at the redirect endpoint, it has been mitigated any CSRF attacks against the redirect endpoint.
-
-If a \texttt{state} param value is passed to a service provider, the OAuth2 specification mandates that it must be returned back to the client application untouched. This mechanism is designed specifically to mitigate such CSRF attacks, and should be used particularly for this reason.
+If a \texttt{state} param value is passed to a service provider, the OAuth2 specification mandates that it MUST be returned back to the client application untouched. This mechanism is designed specifically to mitigate such CSRF attacks, and should be used particularly for this reason.
 
 \subsubsection{Phishing}
 Phishing is an attack in which an attacker creates a page or application that looks similar or identical to a target site with the intention that users will be unaware that it is a duplicate and so will enter secret information, like username and password, only to be captured by the impostor site.
 
-OAuth2 client applications are vulnerable to phishing because they rely on sending a user's user-agent to and from the service provider endpoints in order to delegate authority. When developing the client application, everyone should consider the security implications of how the users will interact with the service provider to authenticate. A good rule of thumb is to follow the best practice mentioned earlier (\ref{native}).
+OAuth2 client applications are vulnerable to phishing because they rely on sending a user's user-agent to and from the service provider endpoints in order to delegate authority. When developing the client application, everyone should consider the security implications of how the users will interact with the service provider to authenticate. A good rule of thumb is to follow the best practice mentioned earlier (see \ref{native}).
 
 If native external browsers are used in an application, users will have an increased ability to verify the authenticity of the authorization endpoint that they are seeing.
 
 \vspace{1cm}
 
-\begin{figure}[h!]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.55]{chapters/images/chp4/oie_toIlpPOFRMdK.png}
     \caption{Example of site validity on Safari for iOS}
@@ -123,7 +117,7 @@ If native external browsers are used in an application, users will have an incre
 
 \vspace{0.5cm}
 
-With native browsers, there are often more indicators of a site's validity (for example the lock next to the URL in iPhone's mobile Safari in fig.~\ref{fig:ioslock}). This isn't the case with embedded browsers, which makes utilizing counterfeit pages much easier for attackers.
+With native browsers, there are often more indicators of a site's validity (for example the lock next to the URL in iPhone's mobile Safari in Fig.~\ref{fig:ioslock}). This isn't the case with embedded browsers, which makes utilizing counterfeit pages much easier for attackers.
 
 \subsubsection{Redirection URI manipulation}
 When a client application makes an authorization request for a user, it passes along a \texttt{redirect\_uri} parameter. This parameter can be modified by an attacker, forcing the redirection to a third party URI.
@@ -133,10 +127,10 @@ For example, considering the scenario where the application ExApp allows users t
 What Eve could do is set up a fake link to log into the application, or even a counterfeit application entirely. When a user clicks on this link, they will be directed to the authorization endpoint of the service provider just as would be done from the real application. However, instead of passing the proper redirect URI, for example \texttt{www.exapp.com/callback}, this link passes her own malicious redirect URI which just happens to be her profile page, \texttt{www.goodapp.com/users/eve}. On this page, she can then intercept any authorization codes and access tokens, and proceed to impersonate users and access their protected resources.
 
 
-\begin{figure}[h!]
+\begin{figure}[ht]
     \centering
     \includegraphics[scale=0.65]{chapters/images/chp4/authCodeURIAttack.png}
-    \caption{Redirection URI manipulation's typical flow}
+    \caption[caption]{Redirection URI manipulation's typical flow.\\Source:\hspace{0.2cm}\url{https://www.thearmchaircritic.org}}
     \label{fig:reduri}
 \end{figure}
 

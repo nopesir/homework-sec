@@ -4,13 +4,13 @@ This appendix explains how the two implementations are designed. In particular, 
 \minitoc
 
 \section{Frameworks, libraries and environment}
-For what concerns the second demo and the server of the first demo, it has been used \href{https://maven.apache.org/}{Apache Maven} as build automation tool and the only requirement is \href{https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html}{Java JDK8} installed. Moreover, since Maven is integrated in the project (by using \href{https://github.com/takari/maven-wrapper}{maven-wrapper}), there is no need to install it on the machine.
-For what concerns the client in the first demo, React is the Javascript framework chosen. Obviously, \texttt{npm} and \texttt{node} must be installed on the machine (see \href{https://www.npmjs.com/get-npm}{here} to get both of them). 
+For what concerns the second demo and the server of the first demo, it has been used Apache Maven as build automation tool and the only requirement is Java JDK8 installed. Moreover, since Maven is integrated in the project (by using maven-wrapper), there is no need to install it on the machine.
+For what concerns the client in the first demo, React is the Javascript framework chosen. Obviously, \texttt{npm} and \texttt{node} must be installed on the machine (see \url{https://www.npmjs.com/get-npm} to get both of them). 
 The code of the implementation examples is available on GitHub:
 
 \begin{itemize}
-    \item \href{https://github.com/nopesir/oauth-hw-security}{OAuth2 with Google/Facebook}
-    \item \href{https://github.com/nopesir/oauth-hw-security-custom}{OAuth2 with custom AuthZ/Resource servers}
+    \item \textbf{OAuth2 with Google/Facebook}\footnote{\url{https://github.com/nopesir/oauth-hw-security}}
+    \item \textbf{OAuth2 with custom AuthZ/Resource servers}\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom}}
 \end{itemize}
 
 Last but not least, both \texttt{Docker} and \texttt{Docker-Compose} must be installed too in order to dockerize the solutions. For instructions, see (\ref{appa}).
@@ -22,6 +22,15 @@ In this section are analyzed design and implementation of the two solutions with
 The \textit{server-side} is a Spring Boot application that uses OAuth2 by exploiting Spring Security in order to implement both social (Google/Facebook/GitHub) and email/password logins (with a MySQL database). On the other hand, the \textit{client-side} application is not strictly related to OAuth2, but it is an example on how to use the information provided by the OAuth2 Spring Boot server to interact with an end-user (in this case, a React web application). Since the flow with some providers varies for what concerns payloads types and endpoints, of particular relevance are the official documentation from Facebook \cite{facebook} and Google \cite{google1, google2}. Furthermore, in order to implement the Spring Boot server, a good example can be found on the article from developer.okta.com's blog \cite{sprboot}. 
 
 \subsubsection{Client-side}
+
+\begin{wrapfigure}[20]{r}{0.31\textwidth}
+  \begin{center}
+    \includegraphics[width=0.31 \textwidth]{chapters/images/chp6/dirreact.jpg}
+  \end{center}
+  \caption{Final directory tree of the \texttt{react-social} app}
+  \label{fig:dirtree}
+\end{wrapfigure}
+
 As mentioned before, this application is pretty simple and it is only used as interface between the OAuth2 Spring Boot back-end server and the user in order to display information. An alternative could be directly to implement into the Spring Boot back-end the web-server.
 
 \noindent In order to create the base React application, simply type:
@@ -39,15 +48,11 @@ As mentioned before, this application is pretty simple and it is only used as in
 
 
 %------------------------------------------
-\begin{wrapfigure}[20]{r}{0.31\textwidth}
-  \begin{center}
-    \includegraphics[width=0.31 \textwidth]{chapters/images/chp6/dirreact.jpg}
-  \end{center}
-  \caption{Final directory tree of the \texttt{react-social} app}
-  \label{fig:dirtree}
-\end{wrapfigure}
 
-\noindent That is the base React application to build on. We have to populate and organize the final directory structure in order to look like in figure \ref{fig:dirtree}.
+
+\noindent That is the base React application to build on. We have to populate and organize the final directory structure in order to look like in Fig.~\ref{fig:dirtree}.
+
+
 
 The code is pretty self-explanatory, but there are some important aspects to consider. The first one is \textbf{index.js}, that is the entry-point of the application. It renders the App component in a document object model that has \texttt{root} as id and it is subsequently wrapped into a Router to enable client-side routing. The second important aspect is \textbf{App.js}, located in \texttt{src/app}. It is the top-level element of the application and basically is responsible for the layout, the routes and manages the authentication by loading the details from the back-end of the current user, forwarding it to the child components. The \textbf{Login.js} file, located in \texttt{src/user/login}, is responsible for the OAuth2 login and the username/password login, while \textbf{OAuth2RedirectHandler.js} is the component called by the Spring Boot server when the user has completed the OAuth2 flow on it. In particular, once that the server flow is finished, the server saves all the information in a database and generates a local token. This component will receive an bearer token from the Spring Boot server (note that this token is not related to OAuth2, it is a token generated by the Spring Boot server in order to manage the access to the database information) or an error otherwise.
 
@@ -71,9 +76,9 @@ In order to enable the Spring Boot server to perform a social login with an OAut
 \noindent To create an app, simply start a new app in one of the following provider's page:
 
 \begin{itemize}
-    \item Google Project: \href{https://console.developers.google.com/}{https://console.developers.google.com/}
-    \item Facebook: \href{https://developers.facebook.com/apps}{https://developers.facebook.com/apps}
-    \item GitHub: \href{https://github.com/settings/apps}{https://github.com/settings/apps}
+    \item Google Project: \url{https://console.developers.google.com/}
+    \item Facebook: \url{https://developers.facebook.com/apps}
+    \item GitHub: \url{https://github.com/settings/apps}
 \end{itemize}
 
 \noindent Set the Authorized redirect URIs (more on this in the next subsection), the scopes (email, name) and retrieve the two secrets for each provider.
@@ -89,9 +94,9 @@ In order to enable the Spring Boot server to perform a social login with an OAut
   \label{fig:dirsocial}
 \end{wrapfigure}
 
-The server, as it has already mentioned, is a Spring Boot application. The base project can be automatically created using \href{https://start.spring.io/}{Spring Initializr}. In particular, the selection are the ones in figure \ref{fig:spring}.
+The server, as it has already mentioned, is a Spring Boot application. The base project can be automatically created using Spring Initializr\footnote{Start the project from \url{https://start.spring.io/}}. In particular, the selection are the ones in Fig.~\ref{fig:spring}.
 
-Then, the project folder has been modified in order to have the directory structure in figure \ref{fig:dirsocial}. Furthermore, there are two more dependencies that must be added to the project (not available on Spring Initializr): \textit{OAuth2 Client} and \textit{JWT Library}. By opening the \texttt{pom.xml} file, thanks to Maven, simply add these lines into the \texttt{<dependencies></dependencies>} tags:
+Then, the project folder has been modified in order to have the directory structure in Fig.~\ref{fig:dirsocial}. Furthermore, there are two more dependencies that must be added to the project (not available on Spring Initializr): \textit{OAuth2 Client} and \textit{JWT Library}. By opening the \texttt{pom.xml} file, thanks to Maven, simply add these lines into the \texttt{<dependencies></dependencies>} tags:
 
 
 
@@ -115,7 +120,7 @@ Then, the project folder has been modified in order to have the directory struct
 In a few words, all the content stored in \texttt{spring:} is related to the server itself, while \texttt{app:} is used to authenticate the React web application. More in details, \texttt{app.auth} information are consumed for the creation of a JWT authentication token (that has nothing to do with OAuth2) that is passed to the React front-end (or any other front-end like a mobile app) by a redirection to \\ \texttt{http://localhost:9090/oauth2/redirect} (enabling OAuth2RedirectHandler.js) or for example \texttt{myandroidapp://oauth2/redirect} if the front-end is a mobile app.
 After successfully authenticating with the OAuth2 Provider, the Spring Boot server will generate an auth token for the user and will send the token to the \texttt{redirectUri} mentioned by the front-end client in the \texttt{/oauth2/authorize} request. 
 
-The next step is to load this configuration file and bind the properties. The \\ \texttt{@ConfigurationProperties} feature is used in \textbf{AppProperties.java} to load the \texttt{app:} information from the configuration file and is enabled with  \texttt{@EnableConfigurationProperties} in the main file \textbf{SpringSocialApplication.java}. Moreover, in order to enable CORS\footnote{Cross-Origin Resource Sharing, from \href{https://en.wikipedia.org/wiki/Cross-origin_resource_sharing}{Wikipedia} "[...] a mechanism that allows restricted resources on a web page to be requested from another domain outside the domain from which the first resource was served."} is created a \textbf{WebMvcConfig.java}  so that our front-end can access the APIs from different origins. The used restrictions are pretty low for the demo, but in production environments they must be restricted.
+The next step is to load this configuration file and bind the properties. The \\ \texttt{@ConfigurationProperties} feature is used in \textbf{AppProperties.java} to load the \texttt{app:} information from the configuration file and is enabled with  \texttt{@EnableConfigurationProperties} in the main file \textbf{SpringSocialApplication.java}. Moreover, in order to enable CORS\footnote{Cross-Origin Resource Sharing, from "[...] a mechanism that uses additional HTTP headers to tell browsers to give a web application running at one origin, access to selected resources from a different origin.". Source: \url{https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS}} is created a \textbf{WebMvcConfig.java}  so that our front-end can access the APIs from different origins. The used restrictions are pretty low for the demo, but in production environments they must be restricted.
 
 In order to enable the database interaction, the database entities must be created. The User entity is available in the \textbf{User.java} file, alongside the \texttt{enum} \textbf{AuthProvider.java} that represents the provider. The implementation of the database functionalities is denoted to the \textbf{UserRepository.java} interface. Here it is used \textit{Spring-Data-JPA} to build a repository layer to access the database information.
 Once that the configuration, the entity classes and repositories are ready, we will use Spring Security to perform the OAuth2 social login as well as the password/email based login.
@@ -148,7 +153,7 @@ Once that the authorization request is received, Spring Security's OAuth2 redire
 
 At this point, \textit{oAuth2AuthenticationFailureHandler} is invoked in case of failure (it redirects the user on the React app with an err message in the query string), otherwise the flow continues and the previous callback contains the \texttt{authorization\_code} that is automatically exchanged by Spring Security for an \texttt{access\_token}. The next step is \textit{customOAuth2UserService} that takes all the details of the authenticated user by performing HTTP GETs to the defined endpoints available in the Google/Facebook documentation and adds/updates the database. Spring Security is really useful in this objective, because it has already implemented the HTTP API calls for the most famous providers and it is almost automated. 
 
-Finally, the last step is \textit{oAuth2AuthenticationSuccessHandler}, that creates a JWT token and sends it to the React app's \texttt{redirect\_uri} previously sent at the beginning. Once that the client app receives it, it can make a HTTP GET with the JWT on the endpoint of the Spring Boot server \texttt{/user/me} to retrieve the user information and display it to the client. The generic flow with Google is available \href{https://github.com/nopesir/oauth-hw-security/releases/download/v0.5-alpha/flow.svg}{here}.
+Finally, the last step is \textit{oAuth2AuthenticationSuccessHandler}, that creates a JWT token and sends it to the React app's \texttt{redirect\_uri} previously sent at the beginning. Once that the client app receives it, it can make a HTTP GET with the JWT on the endpoint of the Spring Boot server \texttt{/user/me} to retrieve the user information and display it to the client. The generic flow with Google is available in \texttt{.svg} format\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.5-alpha/flow.svg}}.
 
 
 In the Section \ref{csrf} has been discussed the problem of CSRF. In particular, the recommended way of avoiding this kind of attack is the use of a \texttt{state} parameter. When the Spring Boot server redirects the user to the provider's login page (see \hyperlink{foo}{here} the HTTP redirection link), it has to first generate this string variable and send it as HTTP parameter with the \texttt{redirect\_uri}. The provider must return this parameter unaltered in the OAuth2 callback and the server will compare the generated one with the received one. In case they don't match, the flow is stopped and the request denied.
@@ -172,7 +177,7 @@ This second implementation example is required in order to better understand OAu
 Clearly, there is the user too (the resource owner), that is responsible for grant/deny permissions to the client-server. All the software of this demo uses Maven for project management, dependencies and so on. Moreover, it is built on top of \texttt{Jakarta EE} \cite{jaksec} with \texttt{MicroProfile}, but more details are available in the dedicated subsections. 
 
 \subsubsection{Client-server}
-This web-server implements four Servlets\footnote{From \href{https://en.wikipedia.org/wiki/Java_servlet}{Wikipedia}, "a Java software component that extends the capabilities of a server. [...] Such web servlets are the Java counterpart to other dynamic web content technologies such as PHP and ASP.NET."}:
+This web-server implements four Servlets\footnote{Exploit dynamic web content with Java, "[..] class that is used to extend the capabilities of servers that host applications accessed by means of a request-response programming model.". Source: \url{https://docs.oracle.com/javaee/5/tutorial/doc/bnafe.html}}:
 
 \begin{itemize}
     \item Request the authorization code from the authorization server's endpoint.

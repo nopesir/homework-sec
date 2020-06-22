@@ -15,17 +15,17 @@ The first one is often cited as the \textbf{client-side workflow}, whereas the s
 To better understand these two workflows and their purposes, it is significant to underline the concept of \textit{trust} and \textit{user consent}.
 
 \subsection{User consent}
-It is clear that when a client application wants to perform a particular action regarding you or resources you own, it must first ask you for \textit{permission}. If an App wants to access your friends list on Facebook, in order for Facebook to allow this, they must ask you directly. This process may be familiar to many of us. For example, in fig.~\ref{fig:usercon1} we can see a screenshot of a user consent presented when you want to log into Pinterest using the Facebook credentials.
+It is clear that when a client application wants to perform a particular action regarding you or resources you own, it must first ask you for \textit{permission}. If an App wants to access your friends list on Facebook, in order for Facebook to allow this, they must ask you directly. This process may be familiar to many of us. For example, in Fig.~\ref{fig:usercon1} we can see a screenshot of a user consent presented when you want to log into Pinterest using the Facebook credentials.
 
 \vspace{0.5cm}
-\begin{figure}[h!]
+\begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.45]{chapters/images/chp2/desktopaccess1.jpg}
     \caption{A classic user consent on Facebook}
     \label{fig:usercon1}
 \end{figure}
 
-A first draft of our flowchart sequence is presented in fig.~\ref{fig:flow1}. The simple steps are:
+A first draft of our flowchart sequence is presented in Fig.~\ref{fig:flow1}. The simple steps are:
 
 \begin{enumerate}
     \item The user asks App to suggest contacts.
@@ -81,7 +81,7 @@ In \textit{OAuth2} two types of token are distinguished.
 
 \textbf{Access token}, that is a very long string that represents the authorization given to the client.
 
-\textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers). In fig.~\ref{fig:refreshtok} we can see an example of how the refresh token is used when the access one expires.
+\textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers). In Fig.~\ref{fig:refreshtok} we can see an example of how the refresh token is used when the access one expires.
 
 
 
@@ -95,12 +95,12 @@ In \textit{OAuth2} two types of token are distinguished.
 \vspace{1cm}
 
 \subsection{Authorization and token endpoints}
-The \textbf{authorization endpoint} is used by the client to obtain authorization from the resource owner via user-agent redirection (the authorization server must first verify the identity of the resource owner, e.g. using OIDC) and it must use TLS\footnote{Transport Layer Security, from \href{https://en.wikipedia.org/wiki/Transport_Layer_Security}{Wikipedia}: " [...] cryptographic protocols designed to provide communications security over a computer network"} in order to have secure confidential data transmissions.
+The \textbf{authorization endpoint} is used by the client to obtain authorization from the resource owner via user-agent redirection (the authorization server must first verify the identity of the resource owner, e.g. using OIDC) and it must use TLS\footnote{Transport Layer Security, "[...] cryptographic protocols designed to provide communications security over a computer network.". Source: \url{https://en.wikipedia.org/wiki/Transport_Layer_Security}} in order to have secure confidential data transmissions.
 
 The \textbf{token endpoint} has the role of waiting for the client in order to return an access token in exchange of an authorization code or a refresh token. That kind of endpoint is not used in the implicit grant type (see section \ref{section22}), because in this case the token is issued directly.
 
 \section{Client-side flow (untrusted)}
-So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the RFC-6749 \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
+So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the RFC-6749 \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the Fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -114,7 +114,7 @@ So far, the implicit grant flow is optimized for scripting language based client
 
 It must be noticed that (A) and (B) are split into two parts because they both pass through the \textit{user-agent}.
 
-\begin{figure}[h!]
+\begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.6]{chapters/images/chp2/client.jpg}
     \caption{RFC-6749 implicit grant flow}
@@ -158,7 +158,7 @@ The client MUST build this request using these parameters into the URI:
 
 \hspace{0.5cm}Value used by the AuthZ server to redirect the user-agent back to the client.
 
-\hspace{0.5cm}As it will be shown in the following chapters, the param should be used to avoid CSRF\footnote{Cross-site request forgery, from Wikipedia: "exploit of a website where unauthorized commands are transmitted from a user that the web application trusts"}.
+\hspace{0.5cm}As it will be shown in the following chapters, the param should be used to avoid CSRF\footnote{Cross-site request forgery, "[...] when a malicious program causes a user's web browser to perform an unwanted action on a trusted site on which the user is currently authenticated.". Source: \url{https://auth0.com/docs/protocols/oauth2/mitigate-csrf-attacks}}.
 
 \subsubsection{Error response}
 \label{tokenerr}
@@ -224,7 +224,7 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 \section{Server-side flow (trusted)}
 \label{authcg}
 
-The AuthZ code grant is used to retrieve access and (optional) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the RFC-6749 \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
+The AuthZ code grant is used to retrieve access and (optional) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the RFC-6749 \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -240,7 +240,7 @@ It must be noticed that, with respect to the implicit grant flow, in addition to
 
 \vspace{0.5cm}
 
-\begin{figure}[h!]
+\begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.7]{chapters/images/chp2/server.jpg}
     \caption{RFC-6749 authorization code grant}
