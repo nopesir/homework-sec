@@ -15,7 +15,7 @@ The first one is often cited as the \textbf{client-side workflow}, whereas the s
 To better understand these two workflows and their purposes, it is significant to underline the concept of \textit{trust} and \textit{user consent}.
 
 \subsection{User consent}
-It is clear that when a client application wants to perform a particular action regarding you or resources you own, it must first ask you for \textit{permission}. If an App wants to access your friends list on Facebook, in order for Facebook to allow this, they must ask you directly. This process may be familiar to many of us. For example, in Fig.~\ref{fig:usercon1} we can see a screenshot of a user consent presented when you want to log into Pinterest using the Facebook credentials.
+It is clear that when a client application wants to perform a particular action regarding someone or resources someone owns, it must first asks for \textit{permission}. If an App wants to access someone's friends list on Facebook, in order for Facebook to allow this, they must ask directly to the owner. This process may be familiar to many of us. For example, in Fig.~\ref{fig:usercon1} we can see a screenshot of a user consent presented when someone wants to log into Pinterest using the Facebook credentials.
 
 \vspace{0.5cm}
 \begin{figure}[htbp]
@@ -25,7 +25,7 @@ It is clear that when a client application wants to perform a particular action 
     \label{fig:usercon1}
 \end{figure}
 
-A first draft of our flowchart sequence is presented in Fig.~\ref{fig:flow1}. The simple steps are:
+A first draft of the flowchart sequence is presented in Fig.~\ref{fig:flow1}. The simple steps are:
 
 \begin{enumerate}
     \item The user asks App to suggest contacts.
@@ -42,7 +42,7 @@ In \textit{OAuth2} there are only two levels of trust: \textbf{confidential} and
 Therefore, a client could be categorized into either of this trust levels following the two simple capabilities of storing and transmitting information securely.
 
 A \textit{trusted client} (\textbf{confidential}) is an application capable of storing and transmitting securely information (credentials, tokens, any other resources necessary for their application).
-For example, it could be a 3-tier client-server-DBMS application where the back-end guarantees secure storage and transmission actions for confidential info. 
+For example, it could be a 3-tier client-server-DBMS application where the back-end guarantees secure storage and transmission actions for confidential information. 
 
 Instead, an \textit{untrusted client} (\textbf{public}) is one which is incapable of doing such things and so they cannot be trusted on storing/transmitting securely the needed data. All browser-based applications are untrusted clients (HTML/JS) because all the confidential data should be stored in the browser that is absolutely accessible by everyone.
 It must be underlined that both capabilities of storing and transmitting must be fulfilled in order to call a client \textit{trusted}.
@@ -65,7 +65,7 @@ Facebook finally exchange the information that has been requested. In the previo
 \section{Token and endpoints management}
 Token and endpoints are two important keywords of \textit{OAuth2}. In particular, a \textit{token} is an abstraction that replaces that classic \textit{username} and \textit{password} with a single identifier that might have different formats, structures and methods of utilization based on the server that implements it.
 
-Instead, the \textit{endpoints} are crucial for the protocol. \textit{OAuth2} defines three endpoints:
+Instead, the \textit{endpoints} are crucial for the protocol. In Section 3 of the RFC-6749 specification \cite{RFC6749}, \textit{OAuth2} defines three endpoints:
 
 \begin{itemize}
     \item Authorization endpoint
@@ -224,7 +224,7 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 \section{Server-side flow (trusted)}
 \label{authcg}
 
-The AuthZ code grant is used to retrieve access and (optional) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the RFC-6749 \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
+The AuthZ code grant is used to retrieve access tokens and (OPTIONAL) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the RFC-6749 \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -254,7 +254,7 @@ The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant
 
 \subsubsection{Authorization request}
 
-According to the specification, this request is the one to gain consent from the user. This message is nearly identical to the authorization request we made in the previous section for the implicit grant flow (\ref{authreq}), except for one important difference: the value of the \texttt{response\_type} parameter must be set to \textit{code} instead of \textit{token}.
+According to the specification, this request is the one to gain consent from the user. This message is nearly identical to the authorization request we made in the previous section for the implicit grant flow (\ref{authreq}), except for one important difference: the value of the \texttt{response\_type} parameter MUST be set to \textit{code} instead of \textit{token}.
 
 \subsubsection{Authorization response}
 If the request URL is correctly formatted and constructed, the resource owner will send back a response. If the response will be positive, an authorization code is sent in order to be afterwards converted in an access token.
@@ -278,11 +278,11 @@ Once that the authorization code has been retrieved, it can be used to exchange 
 
 \texttt{grant\_type}
 
-\hspace{0.5cm}REQUIRED. The value is "authorization\_code".
+\hspace{0.5cm}REQUIRED. The value MUST be "authorization\_code".
 
 \texttt{code}
 
-\hspace{0.5cm}REQUIRED. It must be set to the value of the previously retrieved
+\hspace{0.5cm}REQUIRED. It MUST be set to the value of the previously retrieved
 
 \hspace{0.5cm}authorization code
 
