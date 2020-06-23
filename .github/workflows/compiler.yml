@@ -10,3 +10,8 @@ jobs:
         uses: dante-ev/latex-action@master
         with:
           root_file: report.tex
+      - name: Upload document
+        uses: actions/upload-artifact@v2
+        with: 
+          name: paper
+          path: report.pdf
