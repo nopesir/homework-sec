@@ -1,10 +1,10 @@
 \chapter{Residual risks}
-In this last chapter are presented some important best practices along with a deep analysis of the common attacks on \textit{OAuth2}. All the risks linked to the protocol are described in the Section 10 of the RFC-6749 \cite{RFC6749}.
+In this last chapter are presented some important best practices along with a deep analysis of the common attacks on \textit{\oauth}. All the risks linked to the protocol are described in the Section 10 of the \rfc{6749} \cite{RFC6749}.
 
 \minitoc
 
 \section{Introduction}
-Just as with any application, security should be a top priority. This is especially true for applications that utilize this protocol. In order to understand why it is true, could be helpful to summarize what OAuth2 does. Recalling that, it has been discussed how OAuth2 provides federated identity as well as delegated authority. If there is no diligence with security practices during the implementation, some very dangerous holes can be exposed for attackers to exploit.
+Just as with any application, security should be a top priority. This is especially true for applications that utilize this protocol. In order to understand why it is true, could be helpful to summarize what \oauth\ does. Recalling that, it has been discussed how \oauth\ provides federated identity as well as delegated authority. If there is no diligence with security practices during the implementation, some very dangerous holes can be exposed for attackers to exploit.
 Indeed, when dealing with federated identity and delegated authority (since these are very powerful practices that can provide attackers with a lot of power) the developers must be extra vigilant.
 
 If an attacker were somehow able to exploit an application to game either of these concepts, they may be able to do the following:
@@ -16,7 +16,7 @@ If an attacker were somehow able to exploit an application to game either of the
     \item Gain access to protected data and resources
 \end{itemize}
 
-In order to fight this, there must be extra carefulness with the implementation with regard to the client integration with the service provider via OAuth2. 
+In order to fight this, there must be extra carefulness with the implementation with regard to the client integration with the service provider via \oauth. 
 
 \section{Best practices}
 There are surely countless ways that a given application can be exploited. The objective is to minimize the attack vectors available to attackers, but it is not possible to cover all the possibilities. What follows is a non-exhaustive list of security best practices that will help to keep an application as secure as possible. 
@@ -68,7 +68,7 @@ Tokens granted to untrusted clients are inherently insecure for these reasons. K
 The application's client credentials and the received tokens are sensitive properties. They must keep these as secure as possible, making sure not to expose them to users. It is assumed that, if a user can see them, an attacker can too. If an attacker can get hold of the application's client credentials, they can impersonate the client. If an attacker can get hold of a granted access token for a user, they can impersonate that user. It is best to keep these out of reach of the users entirely. This is best done by using a back-end server to store and transmit these values, never exposing them to the client.
 
 \section{Common attacks analysis}
-After some security best practices to keep the application secure, it is now time to take a look at some common attacks against \textit{OAuth2} clients that everyone should be aware of. Furthermore, they will also examined mitigation techniques that can be used to protect the application from such attacks.
+After some security best practices to keep the application secure, it is now time to take a look at some common attacks against \textit{\oauth} clients that everyone should be aware of. Furthermore, they will also examined mitigation techniques that can be used to protect the application from such attacks.
 
 \subsubsection{Cross-site request forgery}
 \label{csrf}
@@ -79,7 +79,7 @@ This site is owned by the attacker and, while the user is browsing pictures, in 
 Since the user already has a valid session with their bank, this request will be seen as valid. And so, while the user is enjoying the attacker-owned website, they have also unwittingly transferred \$1,000 out of their account and into the
 attacker's account. This can be done in many ways: a malicious link that tricks victims into clicking, an \texttt{iframe} or \texttt{image} that automatically loads the malicious link, or even a redirection from an attacker-controlled page.
 
-How is this relevant all of this to an OAuth2 client application? 
+How is this relevant all of this to an \oauth\ client application? 
 Reminding the first workflow with a typical authorization workflow previously discussed, it is possible to add another party (namely, the attacker). In this scenario (Fig.~\ref{fig:csrf}), the attacker sends a malicious authorization code or access token directly to the client application's redirect URI. Since the client application can't verify that the token is valid, it continues to use it to communicate with the service provider. As the token is attacker-owned, this may result in the attacker gaining access to the protected resources of the user.
 This happens mainly because the client application has no way of verifying that the authorization code or access token that has been issued to it is the result of a valid request made by the application.
 
@@ -88,7 +88,7 @@ This happens mainly because the client application has no way of verifying that 
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.65]{chapters/images/chp4/csrf.png}
-    \caption[CSRF on Oauth2]{CSRF on Oauth2.\\\hspace{\textwidth}Source:\hspace{0.2cm}\url{https://stackoverflow.com/a/42520213}}
+    \caption[CSRF on \oauth]{CSRF on \oauth.\\\hspace{\textwidth}Source:\hspace{0.2cm}\url{https://stackoverflow.com/a/42520213}}
     \label{fig:csrf}
 \end{figure}
 
@@ -97,12 +97,12 @@ This happens mainly because the client application has no way of verifying that 
 To avoid this attack, the client application must make use of the \texttt{state} param.
 In order to protect the client application against CSRF, the developer must implement the ability to verify whether the authorization codes or access tokens issued to it are valid (that is, they are the result of a valid authorization request by the user from the client application). To do this, the client application must generate a session-specific, unguessable value that it can pass along with its authorization request. When an authorization code or access token is returned back to the redirect URI, the application can validate that value to ensure that it was indeed used as part of a valid authorization request initiated by the user, and not by some attacker.
 
-If a \texttt{state} param value is passed to a service provider, the OAuth2 specification mandates that it MUST be returned back to the client application untouched. This mechanism is designed specifically to mitigate such CSRF attacks, and should be used particularly for this reason.
+If a \texttt{state} param value is passed to a service provider, the \oauth\ specification mandates that it MUST be returned back to the client application untouched. This mechanism is designed specifically to mitigate such CSRF attacks, and should be used particularly for this reason.
 
 \subsubsection{Phishing}
 Phishing is an attack in which an attacker creates a page or application that looks similar or identical to a target site with the intention that users will be unaware that it is a duplicate and so will enter secret information, like username and password, only to be captured by the impostor site.
 
-OAuth2 client applications are vulnerable to phishing because they rely on sending a user's user-agent to and from the service provider endpoints in order to delegate authority. When developing the client application, everyone should consider the security implications of how the users will interact with the service provider to authenticate. A good rule of thumb is to follow the best practice mentioned earlier (see \ref{native}).
+\oauth\ client applications are vulnerable to phishing because they rely on sending a user's user-agent to and from the service provider endpoints in order to delegate authority. When developing the client application, everyone should consider the security implications of how the users will interact with the service provider to authenticate. A good rule of thumb is to follow the best practice mentioned earlier (see \ref{native}).
 
 If native external browsers are used in an application, users will have an increased ability to verify the authenticity of the authorization endpoint that they are seeing.
 

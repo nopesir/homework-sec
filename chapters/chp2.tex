@@ -3,7 +3,7 @@ After the first brief introduction, in this chapter the protocol will be describ
 \minitoc
 
 \section{Introduction to the flows}\label{section22}
-In a generic use case, when someone has granted permission for an app in order to access his friend list on his behalf, it must happen an interaction between Facebook and the app itself. However, this interaction differs depending on the client natures and capabilities: that is why \textit{OAuth2} supports various ways of exchanging information through the use of workflows.
+In a generic use case, when someone has granted permission for an app in order to access his friend list on his behalf, it must happen an interaction between Facebook and the app itself. However, this interaction differs depending on the client natures and capabilities: that is why \textit{\oauth} supports various ways of exchanging information through the use of workflows.
 In particular, using the adopted terminology, these are called \textit{grant types} and in the protocol we can find two main grant types that are used in the majority of the cases (the protocol specifies four grant types, but the other two ones are not used in real-world applications):
 
 \begin{itemize}
@@ -38,7 +38,7 @@ However, it is necessary to specifically deal with the distinction of the two gr
 
 \subsection{Trusted/Untrusted clients}
 
-In \textit{OAuth2} there are only two levels of trust: \textbf{confidential} and \textbf{public}. 
+In \textit{\oauth} there are only two levels of trust: \textbf{confidential} and \textbf{public}. 
 Therefore, a client could be categorized into either of this trust levels following the two simple capabilities of storing and transmitting information securely.
 
 A \textit{trusted client} (\textbf{confidential}) is an application capable of storing and transmitting securely information (credentials, tokens, any other resources necessary for their application).
@@ -50,7 +50,7 @@ It must be underlined that both capabilities of storing and transmitting must be
 When the user accepts this form, he has agreed to allow App to access to his Facebook friend list on his behalf. In simple terms, the user has delegated read-only authority to App for his Facebook friend list.
 This workflow can be curated some more. There is a very important step in the
 preceding process that requires a larger discussion. It is step 4 where App and
-Facebook finally exchange the information that has been requested. In the previous diagram, it has been presented as a single step where Facebook gives the information to App. However, in reality, this is a much more complicated exchange that occurs, which depends on many factors. Since this secure and controlled exchange of information is at the crux of what OAuth 2.0 does, it is better to take a closer look.
+Facebook finally exchange the information that has been requested. In the previous diagram, it has been presented as a single step where Facebook gives the information to App. However, in reality, this is a much more complicated exchange that occurs, which depends on many factors. Since this secure and controlled exchange of information is at the crux of what \oauth\ does, it is better to take a closer look.
 
 \begin{figure}
     \centering
@@ -63,9 +63,9 @@ Facebook finally exchange the information that has been requested. In the previo
 \vspace{1cm}
 
 \section{Token and endpoints management}
-Token and endpoints are two important keywords of \textit{OAuth2}. In particular, a \textit{token} is an abstraction that replaces that classic \textit{username} and \textit{password} with a single identifier that might have different formats, structures and methods of utilization based on the server that implements it.
+Token and endpoints are two important keywords of \textit{\oauth}. In particular, a \textit{token} is an abstraction that replaces that classic \textit{username} and \textit{password} with a single identifier that might have different formats, structures and methods of utilization based on the server that implements it.
 
-Instead, the \textit{endpoints} are crucial for the protocol. In Section 3 of the RFC-6749 specification \cite{RFC6749}, \textit{OAuth2} defines three endpoints:
+Instead, the \textit{endpoints} are crucial for the protocol. In Section 3 of the \rfc{6749}\ specification \cite{RFC6749}, \textit{\oauth} defines three endpoints:
 
 \begin{itemize}
     \item Authorization endpoint
@@ -77,7 +77,7 @@ Obviously, not every grant types defines the first two ones.
 
 \subsection{Access and refresh token}
 \label{accref}
-In \textit{OAuth2} two types of token are distinguished.
+In \textit{\oauth} two types of token are distinguished.
 
 \textbf{Access token}, that is a very long string that represents the authorization given to the client.
 
@@ -88,7 +88,7 @@ In \textit{OAuth2} two types of token are distinguished.
 \begin{figure}
     \centering
     \includegraphics[scale=0.5]{chapters/images/chp2/tokenref.jpg}
-    \caption{RFC-6748 refresh token usage}
+    \caption{\rfc{6749} refresh token usage}
     \label{fig:refreshtok}
 \end{figure}
 
@@ -100,7 +100,7 @@ The \textbf{authorization endpoint} is used by the client to obtain authorizatio
 The \textbf{token endpoint} has the role of waiting for the client in order to return an access token in exchange of an authorization code or a refresh token. That kind of endpoint is not used in the implicit grant type (see section \ref{section22}), because in this case the token is issued directly.
 
 \section{Client-side flow (untrusted)}
-So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the RFC-6749 \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the Fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
+So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the Fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -117,7 +117,7 @@ It must be noticed that (A) and (B) are split into two parts because they both p
 \begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.6]{chapters/images/chp2/client.jpg}
-    \caption{RFC-6749 implicit grant flow}
+    \caption{\rfc{6749}\ implicit grant flow}
     \label{fig:flowa}
 \end{figure}
 
@@ -224,7 +224,7 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 \section{Server-side flow (trusted)}
 \label{authcg}
 
-The AuthZ code grant is used to retrieve access tokens and (OPTIONAL) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the RFC-6749 \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
+The AuthZ code grant is used to retrieve access tokens and (OPTIONAL) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the \rfc{6749}\ \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
 
 \begin{itemize}
     \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
@@ -243,7 +243,7 @@ It must be noticed that, with respect to the implicit grant flow, in addition to
 \begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.7]{chapters/images/chp2/server.jpg}
-    \caption{RFC-6749 authorization code grant}
+    \caption{\rfc{6749}\ authorization code grant}
     \label{fig:serverflow}
 \end{figure}
 
@@ -300,7 +300,7 @@ Additionally,in order to pass these parameters to the access token request, the 
 application must also identify itself with the service provider. This is an added
 layer of security (only necessary for trusted clients) and it is known as \textit{client
 authentication}.
-It entails the secure transmission of the client credentials to the service provider for validation. It must be pointed out that although the OAuth 2.0 specification doesn't specify any particular authentication scheme for client authentication, this is typically done using HTTP basic authentication [RFC-2617].
+It entails the secure transmission of the client credentials to the service provider for validation. It must be pointed out that although the \oauth\ specification doesn't specify any particular authentication scheme for client authentication, this is typically done using HTTP basic authentication [RFC-2617].
 In other words, it is the Base64-encoded value of the client credentials in
 the form:
 

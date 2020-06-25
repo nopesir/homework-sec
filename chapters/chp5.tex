@@ -1,6 +1,6 @@
 \appendix
 \chapter{User manual}
-This appendix explains how to correctly install and run the two implementations of the OAuth2 AuthZ Code Grant Flow: one using as provider Google/Facebook and the other one using a custom AuthZ/Resource Server.
+This appendix explains how to correctly install and run the two implementations of the \oauth\ AuthZ Code Grant Flow: one using as provider Google/Facebook and the other one using a custom AuthZ/Resource Server.
 
 \minitoc
 
@@ -101,7 +101,7 @@ On Ubuntu Linux, the steps follow.
 \section{Installation and use}
 Once that \texttt{docker} and \texttt{docker-compose} are installed, the installation and use are not OS-dependent. Indeed, Docker Desktop (Windows/macOS) needs to be started as application first.
 
-\subsection{OAuth2 with Google/Facebook}
+\subsection{\oauth\ with Google/Facebook}
 In order to install and run the implementation example that interacts with Google/Facebook, download the latest release of the \texttt{docker-compose.yaml} file\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases}}, available in the assets as shown in Fig.~\ref{fig:rel1} (there are other files, but we only need the \texttt{.yaml} file).
 
 \begin{figure}[h!]
@@ -139,7 +139,7 @@ The full screen video captioning of the example is available in the Assets of th
 \subsubsection{Troubleshooting}
 \begin{itemize}
     \item Ensure to have ports \texttt{9090/tcp}, \texttt{8080/tcp} and \texttt{3306/tcp} available.
-    \item Facebook login could give an error: Facebook App in test mode are accessible with OAuth2 only by the developer Facebook account\footnote{\url{https://developers.facebook.com/docs/apps/managing-development-cycle/\#step1}}, thus some test users must be added to the Facebook Developer's page. Use Google instead.
+    \item Facebook login could give an error: Facebook App in test mode are accessible with \oauth\ only by the developer Facebook account\footnote{\url{https://developers.facebook.com/docs/apps/managing-development-cycle/\#step1}}, thus some test users must be added to the Facebook Developer's page. Use Google instead.
     \item Ensure to have at least 8GB of RAM on the machine.
     \item (Windows/macOS) Ensure that the Docker Desktop program is started.
     \item (Ubuntu Linux) Ensure that the Docker deamon is running.
@@ -147,7 +147,7 @@ The full screen video captioning of the example is available in the Assets of th
 
 \newpage
 
-\subsection{OAuth2 with custom AuthZ/Resource servers}
+\subsection{\oauth\ with custom AuthZ/Resource servers}
 To install and run the second example, the steps are almost the same as the previous subsection. Download from the releases page\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases}} the latest release of the \texttt{docker-compose.yaml} file (choose a different folder to put it, or remove the previous \texttt{.yaml} file), available in the assets of the release.
 
 \noindent Then, in the same folder where \texttt{docker-compose.yaml} is, open the terminal and type:

@@ -5,9 +5,9 @@ This chapter introduces the motivations and explains some keywords as prerequisi
 \section{Motivations behind OAuth2}
 Open Authorization, more commonly called OAuth, is an open communication protocol through which an application (or a web service) can safely manage authorized access to sensitive data. The protocol is compatible with any type of application: desktop, web and mobile.
 
-The OAuth protocol was conceived by Blaine Cook in 2006 while working on the Twitter implementation of OpenID, offering it as an open alternative to the many existing proprietary protocols, such as Google AuthSub, AOL OpenAuth, Yahoo BBAuth, Flickr API and many others. Since version 1.0 (published in 2007), OAuth has undergone several revisions, gradually incorporating the Requests For Comments (RFCs) proposed by the various experts. Following this procedure, the final specification was published some years ago. The different main service providers, such as social networks, Facebook, Twitter, LinkedIn and many others, have already announced support even before the first draft was officially published.
+The OAuth protocol was conceived by Blaine Cook in 2006 while working on the Twitter implementation of OpenID, offering it as an open alternative to the many existing proprietary protocols, such as Google AuthSub, AOL OpenAuth, Yahoo BBAuth, Flickr API and many others. Since version 1.0 (published in 2007), \oauth\ has undergone several revisions, gradually incorporating the Requests For Comments (RFCs) proposed by the various experts. Following this procedure, the final specification was published some years ago. The different main service providers, such as social networks, Facebook, Twitter, LinkedIn and many others, have already announced support even before the first draft was officially published.
 
-From a high level point of view, \textit{OAuth2} allows two parties to exchange securely and reliably sensitive information exploiting the concepts of \textit{federated identity} and \textit{delegated authority}. For example, some real-life scenarios could be:
+From a high level point of view, \textit{\oauth} allows two parties to exchange securely and reliably sensitive information exploiting the concepts of \textit{federated identity} and \textit{delegated authority}. For example, some real-life scenarios could be:
 
 \begin{itemize}
     \item StackOverflow allowing you to log in with your Google account
@@ -20,7 +20,7 @@ In a few words, this protocol allows the creation of powerful applications that 
 \vspace{0.5cm}
 
 \section{Authentication and authorization}
-An essential prerequisite in order to understand OAuth2 is the difference between \textit{authentication} and \textit{authorization}. This two terms might seem quite similar and sometimes they are interchanged, but actually they represent something totally different.
+An essential prerequisite in order to understand \oauth\ is the difference between \textit{authentication} and \textit{authorization}. This two terms might seem quite similar and sometimes they are interchanged, but actually they represent something totally different.
 
 \textbf{Authentication} is the process of validating whether an actor (a person or a system) is really who it says it is or not.
 As a real-life analogy, it could be useful to picture it as the act of showing the personal driver license to someone who wants to verify someone's identity (maybe when someone wants to access to sensitive documents at the bank teller). 
@@ -29,7 +29,7 @@ This action could be recognized when the actor gives username and password to be
 \textbf{Authorization} instead, is the process of determining what actions someone can or cannot do once it is authenticated.
 Coming back to the analogy of the bank teller, once that someone is authenticated and wants to do some actions, he needs authorization to do it and so he must pass both authentication and authorization in order to access, modify, delete some data. Usually this is implemented by looking up the permission in some access control lists.
 
-Following these keywords, \textit{OAuth2} implements an \textit{authorization} protocol that could guarantees \textit{authentication} too when in conjunction to other ones (we will see more about it in the next chapters).
+Following these keywords, \textit{\oauth} implements an \textit{authorization} protocol that could guarantees \textit{authentication} too when in conjunction to other ones (we will see more about it in the next chapters).
 
 \section{Federated identity and delegated authority}
 In more practical terms, this protocol involves two different "common uses": the \textbf{federated identity} and the \textbf{delegated authority}.
@@ -37,11 +37,11 @@ In more practical terms, this protocol involves two different "common uses": the
 The first one is a really important concept in the field of identity management. It pertains to the approach that allows one service provider to allow authentication of a user using their identity with another service provider. As an example, Pinterest allowing users to log in with their Google account.
 Instead, the second one represents the ability of the service provider to gain access to user's resources from their behalf, like Facebook, which can suggest you to add contacts based on your Google (or a custom provider) ones; it is more or less a permission delegation.
 
-In other words, the \textit{Open Authorization} framework could provide both federated identity and delegated authority. It could, because speaking it is only an authorization framework, so it doesn't support the federated identity. This is why a crucial importance is given by the third-part protocols that work in conjunction with it, like \textit{OIDC}\footnote{OpenID Connect, not to be confused with OpenID itself}, that provides an authentication layer on top of the \textit{OAuth2} framework.
+In other words, the \textit{Open Authorization} framework could provide both federated identity and delegated authority. It could, because speaking it is only an authorization framework, so it doesn't support the federated identity. This is why a crucial importance is given by the third-part protocols that work in conjunction with it, like \textit{OIDC}\footnote{OpenID Connect, not to be confused with OpenID itself}, that provides an authentication layer on top of the \textit{\oauth} framework.
 
 
-\section{OAuth roles}
-The protocol has practically become the industry-standard one for authorization. In other words, Google provides a multitude of services while Facebook's social graph allows many actions (including posting to wall and sending messages). And then Instagram, Twitter, Spotify, now even Amazon. Moreover, it can be built a custom provider to use OAuth2 not as a social application (without Google and the others).
+\section{\oauth\ roles}
+The protocol has practically become the industry-standard one for authorization. In other words, Google provides a multitude of services while Facebook's social graph allows many actions (including posting to wall and sending messages). And then Instagram, Twitter, Spotify, now even Amazon. Moreover, it can be built a custom provider to use \oauth\ not as a social application (without Google and the others).
 
 For what concerns the roles, there are in general four principal actors, described as follows:
 
@@ -53,7 +53,7 @@ For what concerns the roles, there are in general four principal actors, describ
     \item The \textbf{User} (resource owner) who is giving AuthZ to the client to access personal information.
 \end{itemize}
 
-It is clear that they are mandatory for \textit{OAuth2} to work and must be recognized/developed accordingly. 
+It is clear that they are mandatory for \textit{\oauth} to work and must be recognized/developed accordingly. 
 
 
 
