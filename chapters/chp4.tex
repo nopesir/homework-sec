@@ -1,8 +1,13 @@
+% ------ CHAPTER 4 ------
+
 \chapter{Residual risks}
+% ------ CHAPTER INTRO ------
 In this last chapter are presented some important best practices along with a deep analysis of the common attacks on \textit{\oauth}. All the risks linked to the protocol are described in the Section 10 of the \rfc{6749} \cite{RFC6749}.
+% ------ END OF CHAPTER INTRO ------
 
 \minitoc
 
+% ------ SECTION 4.1 ------
 \section{Introduction}
 Just as with any application, security should be a top priority. This is especially true for applications that utilize this protocol. In order to understand why it is true, could be helpful to summarize what \oauth\ does. Recalling that, it has been discussed how \oauth\ provides federated identity as well as delegated authority. If there is no diligence with security practices during the implementation, some very dangerous holes can be exposed for attackers to exploit.
 Indeed, when dealing with federated identity and delegated authority (since these are very powerful practices that can provide attackers with a lot of power) the developers must be extra vigilant.
@@ -17,7 +22,9 @@ If an attacker were somehow able to exploit an application to game either of the
 \end{itemize}
 
 In order to fight this, there must be extra carefulness with the implementation with regard to the client integration with the service provider via \oauth. 
+% ------ END OF SECTION 4.1 ------
 
+% ------ SECTION 4.2 ------
 \section{Best practices}
 There are surely countless ways that a given application can be exploited. The objective is to minimize the attack vectors available to attackers, but it is not possible to cover all the possibilities. What follows is a non-exhaustive list of security best practices that will help to keep an application as secure as possible. 
 
@@ -66,7 +73,9 @@ Tokens granted to untrusted clients are inherently insecure for these reasons. K
 
 \subsubsection{Credentials and tokens out of reach of users}
 The application's client credentials and the received tokens are sensitive properties. They must keep these as secure as possible, making sure not to expose them to users. It is assumed that, if a user can see them, an attacker can too. If an attacker can get hold of the application's client credentials, they can impersonate the client. If an attacker can get hold of a granted access token for a user, they can impersonate that user. It is best to keep these out of reach of the users entirely. This is best done by using a back-end server to store and transmit these values, never exposing them to the client.
+% ------ END OF SECTION 4.2 ------
 
+% ------ SECTION 4.3 ------
 \section{Common attacks analysis}
 After some security best practices to keep the application secure, it is now time to take a look at some common attacks against \textit{\oauth} clients that everyone should be aware of. Furthermore, they will also examined mitigation techniques that can be used to protect the application from such attacks.
 
@@ -83,16 +92,12 @@ How is this relevant all of this to an \oauth\ client application?
 Reminding the first workflow with a typical authorization workflow previously discussed, it is possible to add another party (namely, the attacker). In this scenario (Fig.~\ref{fig:csrf}), the attacker sends a malicious authorization code or access token directly to the client application's redirect URI. Since the client application can't verify that the token is valid, it continues to use it to communicate with the service provider. As the token is attacker-owned, this may result in the attacker gaining access to the protected resources of the user.
 This happens mainly because the client application has no way of verifying that the authorization code or access token that has been issued to it is the result of a valid request made by the application.
 
-\vspace{1.5cm}
-
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.65]{chapters/images/chp4/csrf.png}
     \caption[CSRF on \oauth]{CSRF on \oauth.\\\hspace{\textwidth}Source:\hspace{0.2cm}\url{https://stackoverflow.com/a/42520213}}
     \label{fig:csrf}
 \end{figure}
-
-\vspace{1.5cm}
 
 To avoid this attack, the client application must make use of the \texttt{state} param.
 In order to protect the client application against CSRF, the developer must implement the ability to verify whether the authorization codes or access tokens issued to it are valid (that is, they are the result of a valid authorization request by the user from the client application). To do this, the client application must generate a session-specific, unguessable value that it can pass along with its authorization request. When an authorization code or access token is returned back to the redirect URI, the application can validate that value to ensure that it was indeed used as part of a valid authorization request initiated by the user, and not by some attacker.
@@ -106,16 +111,12 @@ Phishing is an attack in which an attacker creates a page or application that lo
 
 If native external browsers are used in an application, users will have an increased ability to verify the authenticity of the authorization endpoint that they are seeing.
 
-\vspace{1cm}
-
 \begin{figure}[ht]
     \centering
     \includegraphics[scale=0.55]{chapters/images/chp4/oie_toIlpPOFRMdK.png}
     \caption{Example of site validity on Safari for iOS}
     \label{fig:ioslock}
 \end{figure}
-
-\vspace{0.5cm}
 
 With native browsers, there are often more indicators of a site's validity (for example the lock next to the URL in iPhone's mobile Safari in Fig.~\ref{fig:ioslock}). This isn't the case with embedded browsers, which makes utilizing counterfeit pages much easier for attackers.
 
@@ -126,10 +127,9 @@ Furthermore, if the application allows users to own or create a webspace of some
 For example, considering the scenario where the application ExApp allows users to create a homepage on their domain. The user Eve may have a homepage that she controls at \texttt{www.exapp.com/users \\ /eve}. If the service provider (whith whom the app is interacting with) allows to register wildcard redirect URIs, like \texttt{www.exapp.com/\*}, or doesn't require to register a redirect URIs at all, then an attacker, such as Eve, would be able to use this homepage to her advantage.
 What Eve could do is set up a fake link to log into the application, or even a counterfeit application entirely. When a user clicks on this link, they will be directed to the authorization endpoint of the service provider just as would be done from the real application. However, instead of passing the proper redirect URI, for example \texttt{www.exapp.com/callback}, this link passes her own malicious redirect URI which just happens to be her profile page, \texttt{www.goodapp.com/users/eve}. On this page, she can then intercept any authorization codes and access tokens, and proceed to impersonate users and access their protected resources.
 
-
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.65]{chapters/images/chp4/authCodeURIAttack.png}
+    \includegraphics[scale=0.63]{chapters/images/chp4/authCodeURIAttack.png}
     \caption[Redirection URI manipulation's typical flow]{Redirection URI manipulation's typical flow.\\Source:\hspace{0.2cm}\url{https://www.thearmchaircritic.org}}
     \label{fig:reduri}
 \end{figure}
@@ -146,5 +146,6 @@ In client impersonation, an attacker masquerades as the client application in or
 In user impersonation, an attacker will masquerade as the end user. This can be done if an attacker is able to gain access to an issued access token. With this, they would be able to make requests to the service provider to access protected resources on behalf of the user, just as the application does.
 
 To mitigate both of these attacks, the solution is simple: protect the client credentials, codes, and tokens from end users. If an attacker were able to see any of those, they would be granted the ability to impersonate the client application or the users, or both.
+% ------ END OF SECTION 4.3 ------
 
-
+% ------ END OF CHAPTER 4 ------

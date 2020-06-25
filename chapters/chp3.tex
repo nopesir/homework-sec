@@ -1,24 +1,37 @@
+% ------ CHAPTER 3 ------
+
 \chapter{Advantages and disadvantages}
+% ------ CHAPTER INTRO ------
 Since in the previous chapters the majority of advantages and disadvantages of the protocol have been already discussed, in this chapter we complete our \textit{\oauth} description by showing a complete work flow comparison (taking into account other flows defined by the protocol but not so used nowadays) and a brief introduction on the extensions in order to better understand its peculiarities. 
+% ------ END OF CHAPTER INTRO ------
 
 \minitoc
+
+% ------ SECTION 3.1 ------
 \section{Secondary flows comparison}
 Until now, all the practical aspects of the standard \rfc{6749} \cite{RFC6749} have been analyzed, but not all the defined ones. In particular, there are two other types of work flows in the specification: \textit{Resource Owner Password Credentials Grant} and \textit{Client Credentials Grant}. These two flows are not frequently used, but they can be helpful in some particular cases.
 
+% ------ SECTION 3.1.1 ------
 \subsection{Resource Owner Password Credentials Grant}
 Described in Section 4.3 of the specification, this flow operates by using the user's actual credentials to gain an access token. It is not the best in terms of security. This goes against the other grant types, where the client application is completely unaware of the user's credentials. However, in this grant type, users send their credentials to the client application that, on their behalf, uses those credentials to access protected resources.
 Once the client application has a user's credentials, it uses them to gain an access token, just as in the other grant types. In this sense, risk is slightly mitigated, compared to using the credentials directly, since tokens have limited scope and duration (unlike passwords). However, the passing and delegation of user credentials is highly undesirable due to the risk of leaking this important information.
 
 Nevertheless, it could be useful when neither of the two others flows are available (implicit grant and authorization code grant).
+% ------ END OF SECTION 3.1.1 ------
 
+% ------ SECTION 3.1.2 ------
 \subsection{Client Credentials Grant}
 Described in Section 4.4 of the \rfc{6749}, this type of flow is slightly different from the others. While the first three of them request access tokens on behalf of a user, this last one request access tokens on behalf of the client application. There may be occasions where the client application has resources with a service provider that are owned and consumed by the client application itself, and not by an end-user. For instance, a client application that uses Amazon RDS\footnote{Amazon Relational Database Service, "[...] makes it easy to set up, operate, and scale a relational database in the cloud. It provides cost-efficient and resizable capacity while automating time-consuming administration tasks such as hardware provisioning [..]". Source: \url{https://aws.amazon.com/rds/}} to persist its own application data (as opposed to a user's data). In this case, this grant is preferred. With this workflow, the client application can request an access token on its own behalf and then use that access token to access the protected resources it needs. The good news are that no user intervention is required and no additional risk is exposed.
+% ------ END OF SECTION 3.1.2 ------
+% ------ END OF SECTION 3.1 ------
 
+% ------ SECTION 3.2 ------
 \section{\oauth\ extensions}
 Extensions are an ample, sophisticated and important key concept of the \oauth\ protocol. Indeed, they do not fall into the same specification and more or less everyone of them has its own RFC.
 
 The implicit and the authorization code grant flows represent the majority of flows that application developers use. However, it is only a limited view with respect to the larger range of capabilities allowed by the framework. There are many extensions that can be added to the Open Authorization Framework to facilitate many additional use cases, but surely the most important ones are \textit{token types}, \textit{custom grant types} and \textit{OpenID Connect}.
 
+% ------ SECTION 3.2.1 ------
 \subsection{Token types}
 Once a grant type is decided, the client application will interact with a service provider through the exchange of tokens. Once the user authenticates and authorizes the application, they are given a bearer token [\rfc{6750}], which the application can then use to access a protected resource on his behalf. The properties of these tokens are quite loosely defined, described by the specification simply as opaque string values that encapsulate an authentication for a particular user. They can simply be unique strings that match up with a set of permissions for a user. Many service providers implement their tokens in this non-standard, custom way. However, it is useful to know that there are two popular token formats that can be used by service providers, if desired:
 
@@ -30,8 +43,9 @@ Once a grant type is decided, the client application will interact with a servic
 Both of these token formats describe a standard for the creation and usage of security tokens. These tokens are known as security tokens, because they make use of cryptography to facilitate features that would not normally be allowed via simple opaque string values.
 
 JWTs are most commonly seen in the consumer space (they are used in the OpenID Connect protocol). Compared with SAML assertions, JWTs can be considered a simpler version of security token than a SAML assertion, with a simpler format and encoding syntax. SAML assertions, on the other hand, employ a standard for security tokens that is more expressive and powerful than JWTs, at the expense of added complexity. These will typically be seen in the enterprise space where SAML integration for authentication is more prevalent. Both of these formats can act as bearer tokens in the \oauth\ protocol, as long as they are supported by the service provider.
+% ------ END OF SECTION 3.2.1 ------
 
-
+% ------ SECTION 3.2.2 ------
 \subsection{Custom grant types}
 When the client application interacts with a service provider, such as Facebook, it does so by using a particular, predefined grant type. Previously, they have been discussed the two most commonly used grant types:
 
@@ -48,7 +62,9 @@ When the client application interacts with a service provider, such as Facebook,
 \end{itemize}
 
 \noindent They, as it has already been explained, are less commonly supported by consumer service providers, such as Google and Facebook. However, it must be pointed out that in addition to natively supporting these four grant types, the \textit{\oauth} framework allows for the specification of additional custom grant types. These will be determined and implemented by the service provider. So, perhaps a workplace decides to use \textit{\oauth} to restrict access to certain parts of the company's data, but the IT team and security team do not want to use any of the four natively supported grant flows. They can, instead, design and implement their own grant type, which the client application will subsequently use to request access tokens and access those protected resources.
+% ------ END OF SECTION 3.2.2 ------
 
+% ------ SECTION 3.2.3 ------
 \subsection{Authorization backend}
 One of the major benefits of the \oauth\ protocol is that it has the ability to encapsulate and abstract away the authentication layer of a service, wrapping it with a standard, uniform layer for client applications to consume. For instance, a company may be using a Kerberos-based authentication system (e.g. LDAP [\rfc{4511}]), for the company's internal authentication. They may, at some point, choose to wrap this with an \oauth\ layer, which would effectively encapsulate their authentication layer and present a uniform interface to any interested parties. Now, they can change their internal authentication methodologies, say, to SAML, and clients would be largely unaware of that (they may be presented a different user consent screen, but other than that, behavior should be unaffected). This is a very powerful concept. Abstracting away the authentication layer provides a uniform interface for clients while maintaining flexibility for the underlying protocols to change without affecting (that is, breaking) clients.
 
@@ -82,3 +98,7 @@ Previously, the concepts of \textbf{federated identity} and \textbf{delegated au
 
 
 As it can be seen, this flow is very similar to the authorization code grant flow that has been discussed earlier, except now it is possible to verify the identity of the user by consuming the ID token built and signed by the AuthZ server, something that was not possible to do with \oauth\ alone. It is an elegant solution for providing a full end-to-end authentication and authorization framework.
+% ------ END OF SECTION 3.2.3 ------
+% ------ END OF SECTION 3.2 ------
+
+% ------ END OF CHAPTER 3 ------

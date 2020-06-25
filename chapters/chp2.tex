@@ -1,7 +1,13 @@
+% ------ CHAPTER 2 ------
+
 \chapter{Description of the analyzed solution}
+% ------ CHAPTER INTRO ------
 After the first brief introduction, in this chapter the protocol will be described in detail, showing the so called different \textit{flows} of it, analyzing the exchanged messages, endpoints, tokens management, authorization and finally giving a smattering in mobile applications.
+% ------ END OF CHAPTER INTRO ------
+
 \minitoc
 
+% ------ SECTION 2.1 ------
 \section{Introduction to the flows}\label{section22}
 In a generic use case, when someone has granted permission for an app in order to access his friend list on his behalf, it must happen an interaction between Facebook and the app itself. However, this interaction differs depending on the client natures and capabilities: that is why \textit{\oauth} supports various ways of exchanging information through the use of workflows.
 In particular, using the adopted terminology, these are called \textit{grant types} and in the protocol we can find two main grant types that are used in the majority of the cases (the protocol specifies four grant types, but the other two ones are not used in real-world applications):
@@ -14,6 +20,7 @@ In particular, using the adopted terminology, these are called \textit{grant typ
 The first one is often cited as the \textbf{client-side workflow}, whereas the second one is often referred to as \textbf{server-side workflow}.
 To better understand these two workflows and their purposes, it is significant to underline the concept of \textit{trust} and \textit{user consent}.
 
+% ------ SECTION 2.1.1 ------
 \subsection{User consent}
 It is clear that when a client application wants to perform a particular action regarding someone or resources someone owns, it must first asks for \textit{permission}. If an App wants to access someone's friends list on Facebook, in order for Facebook to allow this, they must ask directly to the owner. This process may be familiar to many of us. For example, in Fig.~\ref{fig:usercon1} we can see a screenshot of a user consent presented when someone wants to log into Pinterest using the Facebook credentials.
 
@@ -35,7 +42,9 @@ A first draft of the flowchart sequence is presented in Fig.~\ref{fig:flow1}. Th
 \end{enumerate}
 
 However, it is necessary to specifically deal with the distinction of the two grant types in order to better integrate our concepts into a final flowchart.
+% ------ END OF SECTION 2.1.1 ------
 
+% ------ SECTION 2.1.2 ------
 \subsection{Trusted/Untrusted clients}
 
 In \textit{\oauth} there are only two levels of trust: \textbf{confidential} and \textbf{public}. 
@@ -51,6 +60,8 @@ When the user accepts this form, he has agreed to allow App to access to his Fac
 This workflow can be curated some more. There is a very important step in the
 preceding process that requires a larger discussion. It is step 4 where App and
 Facebook finally exchange the information that has been requested. In the previous diagram, it has been presented as a single step where Facebook gives the information to App. However, in reality, this is a much more complicated exchange that occurs, which depends on many factors. Since this secure and controlled exchange of information is at the crux of what \oauth\ does, it is better to take a closer look.
+% ------ END OF SECTION 2.1.2 ------
+% ------ END OF SECTION 2.1 ------
 
 \begin{figure}
     \centering
@@ -60,8 +71,7 @@ Facebook finally exchange the information that has been requested. In the previo
     \vspace{0.5cm}
 \end{figure}
 
-\vspace{1cm}
-
+% ------ SECTION 2.2 ------
 \section{Token and endpoints management}
 Token and endpoints are two important keywords of \textit{\oauth}. In particular, a \textit{token} is an abstraction that replaces that classic \textit{username} and \textit{password} with a single identifier that might have different formats, structures and methods of utilization based on the server that implements it.
 
@@ -75,6 +85,7 @@ Instead, the \textit{endpoints} are crucial for the protocol. In Section 3 of th
 
 Obviously, not every grant types defines the first two ones.
 
+% ------ SECTION 2.2.1 ------
 \subsection{Access and refresh token}
 \label{accref}
 In \textit{\oauth} two types of token are distinguished.
@@ -83,22 +94,22 @@ In \textit{\oauth} two types of token are distinguished.
 
 \textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers). In Fig.~\ref{fig:refreshtok} we can see an example of how the refresh token is used when the access one expires.
 
-
-
 \begin{figure}
     \centering
     \includegraphics[scale=0.5]{chapters/images/chp2/tokenref.jpg}
     \caption{\rfc{6749} refresh token usage}
     \label{fig:refreshtok}
 \end{figure}
+% ------ END OF SECTION 2.2.1 ------
 
-\vspace{1cm}
-
+% ------ SECTION 2.2.2 ------
 \subsection{Authorization and token endpoints}
 The \textbf{authorization endpoint} is used by the client to obtain authorization from the resource owner via user-agent redirection (the authorization server must first verify the identity of the resource owner, e.g. using OIDC) and it must use TLS\footnote{Transport Layer Security, "[...] cryptographic protocols designed to provide communications security over a computer network.". Source: \url{https://en.wikipedia.org/wiki/Transport_Layer_Security}} in order to have secure confidential data transmissions.
 
 The \textbf{token endpoint} has the role of waiting for the client in order to return an access token in exchange of an authorization code or a refresh token. That kind of endpoint is not used in the implicit grant type (see section \ref{section22}), because in this case the token is issued directly.
+% ------ END OF SECTION 2.2.2 ------
 
+% ------ SECTION 2.3 ------
 \section{Client-side flow (untrusted)}
 So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the Fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
 
@@ -123,6 +134,7 @@ It must be noticed that (A) and (B) are split into two parts because they both p
 
 \vspace{1cm}
 
+% ------ SECTION 2.3.1 ------
 \subsection{Analysis of exchanged messages}
 At this point, it is clear that for what concerns the client-side implicit grant type we have only an \textbf{authorization request} and an \textbf{access token response}. Both of them must be encoded accordingly to the specification into the endpoint URI in the \textit{application/x-www-form-urlencoded} format.
 
@@ -220,7 +232,10 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 \texttt{state}
 
 \hspace{0.5cm}REQUIRED. If a state parameter was present in the request.
+% ------ END OF SECTION 2.3.1 ------
+% ------ END OF SECTION 2.3 ------
 
+% ------ SECTION 2.4 ------
 \section{Server-side flow (trusted)}
 \label{authcg}
 
@@ -236,10 +251,6 @@ The AuthZ code grant is used to retrieve access tokens and (OPTIONAL) refresh to
 
 It must be noticed that, with respect to the implicit grant flow, in addition to the steps (A) and (B), now step (C) too is divided because it passes through the \textit{user-agent}.
 
-
-
-\vspace{0.5cm}
-
 \begin{figure}[htbp]
     \centering
     \includegraphics[scale=0.7]{chapters/images/chp2/server.jpg}
@@ -249,11 +260,11 @@ It must be noticed that, with respect to the implicit grant flow, in addition to
 
 \vspace{1cm}
 
+% ------ SECTION 2.4.1 ------
 \subsection{Analysis of exchanged messages}
 The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant flow, two more messages that precede the token request and response are added: the \textbf{authorization request} and the \textbf{authorization response}. Furthermore, it must be implemented the \textit{token refresh} usage (that still it is not always returned by the authorization server). However, here every message must be encoded according to the specification into the URI too using the \textit{application/x-www-form-urlencoded} format.
 
 \subsubsection{Authorization request}
-
 According to the specification, this request is the one to gain consent from the user. This message is nearly identical to the authorization request we made in the previous section for the implicit grant flow (\ref{authreq}), except for one important difference: the value of the \texttt{response\_type} parameter MUST be set to \textit{code} instead of \textit{token}.
 
 \subsubsection{Authorization response}
@@ -271,7 +282,6 @@ The possible parameters that can be expected in the preceding response are now i
 \vspace{0.5cm}
 
 On the other hand, if the response will be negative, the error will be structured as in the implicit grant flow (same properties as in \ref{tokenerr}). The difference relies only in the fact that it is returned in the query component instead of the fragment one.
-
 
 \subsubsection{Token request}
 Once that the authorization code has been retrieved, it can be used to exchange an access token. With this objective, the client makes a request by using a \textit{POST}, specifying in the body section the following parameters:
@@ -341,9 +351,10 @@ For a \textbf{success} response it is sent back a message with the following par
 
 \hspace{0.5cm}OPTIONAL. If they are the same requested by the client.
 
-\vspace{0.5cm}
+% ------ END OF SECTION 2.4.1 ------
+% ------ END OF SECTION 2.4 ------
 
-
+% ------ SECTION 2.5 ------
 \section{About mobile applications}
 Typically, when someone talks about \textit{mobile application}, he is referring to one of the two types of applications:
 
@@ -360,10 +371,14 @@ one way, with the use of a back-end server. If a mobile application has a back-e
 
 In the absence of it though, the application will be unable to securely store and transmit confidential information, and cannot be considered trusted. In this scenario, the mobile application should use the implicit grant flow (as for a standalone web app).
 
-
+% ------ SECTION 2.5.1 ------
 \subsection{Secure storage APIs}
 It is quite common that not all mobile applications are powered by a back-end server. Rather than use the implicit grant flow, there is a solution that can still archive secure (not strictly) storage capabilities by exploiting secure storage APIs in some mobile platforms like iOS and Android.  For the most part, this is enough for most applications to be considered trusted. Client credentials can be stored here and they can communicate directly with the service provider through the application, accessing these secrets via the APIs without the use of a back-end server.
 
 However, strictly speaking, this is not considered trusted. It is true that the confidential data is encrypted, but it is accessible by the attacker. Data and user/attacker are in the same \textit{space} using this method, while with a back-end server the so called user/attacker space is external with respect to the storage services and not accessible. The platform's secure storage APIs may well be extremely secure and difficult for attackers to break, but in strict terms it is possible and, in the world of security, \textit{possible} should be assumed as \textit{probable}. This is why mobile applications that do not have back-end servers, but make use of the mobile platform's secure storage APIs, should not be considered trusted and should therefore not use the authorization code grant flow.
 
 Since the architecture of the mobile application can be flexible, there is no reason why the application has to use a single authorization workflow. Given a mobile application and a back-end server, it is possible to create a hybrid architecture to leverage the best of both worlds.
+% ------ END OF SECTION 2.5.1 ------
+% ------ END OF SECTION 2.5 ------
+
+% ------ END OF CHAPTER 2 ------
