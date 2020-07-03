@@ -285,7 +285,7 @@ For what concerns the authorization endpoint, it was already mentioned the exist
   }
 \end{lstlisting}
 
-\noindent The second part represents the encoded JWS Payload with all the previously build claims, decoded as:
+\noindent The second part represents the encoded JWS Payload with all the previously built claims, decoded as:
 
 \begin{lstlisting}
   {
@@ -303,16 +303,46 @@ For what concerns the authorization endpoint, it was already mentioned the exist
   }
 \end{lstlisting}
 
-The last thing to do is to build the JSON response and add the elements and the JWT in order to returns the information requested by the client:
+\noindent Where, according to the \rfc{7519}\ specification \cite{RFC7519}, are defined the following Registered Claim Names:
 
+\begin{itemize}
+    \item \texttt{sub}: OPTIONAL. The principal that is the subject to the JWT.
+    \item \texttt{aud}: OPTIONAL. Audience, to whom the JWT is addressed.
+    \item \texttt{nbf}: OPTIONAL. Not Before, "the time before which the JWT MUST NOT be accepted for processing." \cite{RFC7519}
+    \item \texttt{iss}: OPTIONAL. The issuer of the JWT.
+    \item \texttt{exp}: OPTIONAL. The expiration time.
+    \item \texttt{iat}: OPTIONAL. Issued At.
+    \item \texttt{jti}: OPTIONAL. JWT ID, unique identifier for the JWT.
+\end{itemize}
+
+\noindent And the following Private Claim Names designed for the demo:
+
+\begin{itemize}
+    \item \texttt{upn}: To be mapped into Jakarta EE Security \textit{CallerPrincipal}.
+    \item \texttt{groups}: To be mapped into Jakarta EE \textit{Roles}.
+    \item \texttt{client\_id}: The ID of the \oauth\ web-server client.
+\end{itemize}
+
+\noindent This claims are built in the token endpoint response code in the \textit{AbstractGrantTypeHandler} class. For what concerns the \texttt{refresh\_token}, the JWT is similar, with few claims and an expiration of one day.
+The last part represents the Base64url encoded JWS Signature performed by the server on the following octets:
+\begin{lstlisting}
+  ASCII(
+    BASE64URL(UTF8(JWS Protected Header)) || '.' ||
+    BASE64URL(JWS Payload)
+  )
+\end{lstlisting}
+
+\noindent Those octets are signed using RSASSA-PKCS1-v1\_5 with the SHA-256 hash algorithm (defined as \texttt{RS256} in the JOSE Header) by the server and finally encoded in Base64url.
+
+The last thing to do is build the JSON response and add the elements and the serialized JWTs (refresh and access tokens) in order to return the information requested by the client. This step is implemented into the \textit{AuthorizationCodeGrantTypeHandler} class, that once it has serialized the two JWTs, it builds the response:
 
 \begin{lstlisting}[language=bash, basicstyle=\fontsize{12}{14}\ttfamily]
   {
-    "access_token": "pft6503a486701d9fb48f1e40ir67b812",
+    "access_token": "averylongstring,seepage46" ,
     "token_type": "Bearer",  
-    "expires_in": 2000,
+    "expires_in": 1800,
     "scope": "resource.read resource.write",
-    "refresh_token": "dtfghryt665y67yljldnshgje96tfrd7"
+    "refresh_token": "smallerthanaccesstoken,lessclaims"
   }
 \end{lstlisting}
 
