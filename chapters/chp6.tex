@@ -246,7 +246,64 @@ For what concerns the authorization endpoint, it was already mentioned the exist
     \item The \textit{RSASSASigner} object uses the imported PEM key to sign the JWT.
 \end{itemize}
 
-\noindent Finally, the JWT is ready and it is serialized into a \textit{String}. The last thing to do is to build the JSON response and add the elements and the JWT in order to returns the information requested by the client:
+\noindent Finally, the JWT is ready and it is serialized into a \textit{String}. More in details, this serialization follows the "JWS Compact Serialization" defined in Section 7.1 of the \rfc{7515} \cite{RFC7515}:
+
+\begin{lstlisting}
+  BASE64URL(UTF8(JWS Protected Header)) || '.' ||
+  BASE64URL(JWS Payload) || '.' ||
+  BASE64URL(JWS Signature)
+\end{lstlisting}
+
+\noindent An example of a valid serialized JWT for this implementation could be:
+
+\begin{lstlisting}
+  eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9
+  .
+  eyJzdWIiOiJhcHB1c2VyIiwiYXVkIjoiaHR0cDpcL1wvMTcyLjI4LjEuMzo5Mjg
+  wIiwidXBuIjoiYXBwdXNlciIsIm5iZiI6MTU5Mzc5MDY1MSwic2NvcGUiOiJyZX
+  NvdXJjZS5yZWFkIiwiaXNzIjoiaHR0cDpcL1wvMTcyLjI4LjEuMjo5MDgwIiwiZ
+  3JvdXBzIjpbInJlc291cmNlLnJlYWQiXSwiZXhwIjoxNTkzNzkyNDUxLCJpYXQi
+  OjE1OTM3OTA2NTEsImNsaWVudF9pZCI6IndlYmFwcGNsaWVudCIsImp0aSI6ImI
+  3MmNiOTc2LTgxY2ItNGRjNi1hMjMwLTg2YzE2ZTE1NWQyNiJ9
+  .
+  pVjwobEPgfjLMdVHdBKNhwNcqpG9UytZH2wcJYtVuVFitgaDk6cWwTCCJlOLLO
+  qcvtXsl4RjXavKFFGVIalQL1Smqj69u6i98VqRVn6yRiPyi8EDJeJn6Xa2BjIF
+  ePjPc8EyejvM47F0LDwJO19kb-s8fcXKqEdB0zTQ8vMvb-1jgk9KlXWzsT3HxN
+  rRLnpHyUAWjELVe30awwF0v9MfGPdxX64Kq62hNA2hg8TLLHXWEgU1v5eqCmdk
+  sD1kyhS_cPSQLRKcXQMDPdTe1H4cnXnm8Gl_qYV885RYLx0DXqddWoiRPCLu
+  5RbLr2ZXxAOSFQ8kKScmXX3BUpkiHS5afw
+
+  
+\end{lstlisting}
+
+\noindent Where the first part of the string is the Base64url encoded JOSE Header that specifies the used algorithm and the type. The decoded string would be:
+
+\begin{lstlisting}
+  {
+    "typ":"JWT",
+    "alg":"RS256"
+  }
+\end{lstlisting}
+
+\noindent The second part represents the encoded JWS Payload with all the previously build claims, decoded as:
+
+\begin{lstlisting}
+  {
+    "sub":"appuser",
+    "aud":"http://172.28.1.3:9280",
+    "upn":"appuser",
+    "nbf":1593790651,
+    "scope":"resource.read",
+    "iss":"http://172.28.1.2:9080",
+    "groups":["resource.read"],
+    "exp":1593792451,
+    "iat":1593790651,
+    "client_id":"webappclient",
+    "jti":"b72cb976-81cb-4dc6-a230-86c16e155d26"
+  }
+\end{lstlisting}
+
+The last thing to do is to build the JSON response and add the elements and the JWT in order to returns the information requested by the client:
 
 
 \begin{lstlisting}[language=bash, basicstyle=\fontsize{12}{14}\ttfamily]
