@@ -3,7 +3,7 @@
 \appendix
 \chapter{User manual}
 % ------ APPENDIX INTRO ------
-This appendix explains how to correctly install and run the two implementations of the \oauth\ AuthZ Code Grant Flow: one using as provider Google/Facebook and the other one using a custom AuthZ/Resource Server.
+This appendix explains how to correctly install and run the two implementations of the \oauth\ AuthZ Code Grant Flow: the former using as provider Google/Facebook and the latter using a custom AuthZ/Resource Server.
 % ------ END OF APPENDIX INTRO ------
 
 \minitoc
@@ -108,11 +108,11 @@ On Ubuntu Linux, the steps follow.
 
 % ------ SECTION A.2 ------
 \section{Installation and use}
-Once that \texttt{docker} and \texttt{docker-compose} are installed, the installation and use are not OS-dependent. Indeed, Docker Desktop (Windows/macOS) needs to be started as application first.
+Once that \texttt{docker} and \texttt{docker-compose} are installed, the demos installation and use is not OS-dependent. Indeed, Docker Desktop (Windows/macOS) needs to be started as application first.
 
 % ------ SECTION A.2.1 ------
 \subsection{\oauth\ with Google/Facebook}
-In order to install and run the implementation example that interacts with Google/Facebook, download the latest release of the \texttt{docker-compose.yaml} file\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases}}, available in the assets as shown in Fig.~\ref{fig:rel1} (there are other files, but we only need the \texttt{.yaml} file).
+In order to install and run the implementation example that interacts with Google/Facebook, the file \texttt{docker-compose.yaml}\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases}} is available in the resources as well as on GitHub as shown in Fig.~\ref{fig:rel1} (there are other files, but we only need the \texttt{.yaml} file).
 
 \begin{figure}[h!]
     \centering
@@ -123,7 +123,7 @@ In order to install and run the implementation example that interacts with Googl
 
 \newpage
 
-\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, open the terminal and type:
+\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, from the terminal:
 \begin{lstlisting}[language=bash]
   $ docker-compose up
 \end{lstlisting}
@@ -138,13 +138,12 @@ In order to install and run the implementation example that interacts with Googl
     \label{fig:home1}
 \end{figure}
 
-\noindent To stop the application, simply use \texttt{Crtl+C} command on the terminal and finally a:
+\noindent To stop the application and safely detach all the resources, \texttt{Crtl+C} command on the terminal and finally a:
 \begin{lstlisting}[language=bash]
   $ docker-compose down
 \end{lstlisting}
 
-\noindent To safely detach all the resources.
-The full screen video captioning of the example is available in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.2-alpha/hw-security-screen.mp4}}}. 
+\noindent The full screen video captioning of the example is available in the resources and in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.2-alpha/hw-security-screen.mp4}}}. 
 
 \subsubsection{Troubleshooting}
 \begin{itemize}
@@ -158,9 +157,9 @@ The full screen video captioning of the example is available in the Assets of th
 
 % ------ SECTION A.2.2 ------
 \subsection{\oauth\ with custom AuthZ/Resource servers}
-To install and run the second example, the steps are almost the same as the previous subsection. Download from the releases page\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases}} the latest release of the \texttt{docker-compose.yaml} file (choose a different folder to put it, or remove the previous \texttt{.yaml} file), available in the assets of the release.
+In order to install and run the second example, the steps are almost the same as the previous subsection. The new \texttt{docker-compose.yaml} is available on the releases page\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases}} or in the resources (remove the previous \texttt{.yaml} file or choose another folder).
 
-\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, open the terminal and type:
+\noindent Then, in the same folder where \texttt{docker-compose.yaml} is, from the terminal:
 \begin{lstlisting}[language=bash]
   $ docker-compose up
 \end{lstlisting}
@@ -175,7 +174,7 @@ The first run needs some time to download, but the next ones will use the downlo
     \label{fig:home2}
 \end{figure}
 
-\noindent Since this is an educational example, all the information are in plain text in the homepage. The first thing to do is retrieve the access token by clicking on the link. Then, a log-in is necessary. The only available credentials are:
+\noindent Since this is an educational example, all the information are in plain text in the homepage. The first thing to do is to retrieve the access token by clicking on the link. Then, a log-in is necessary. The only available credentials are:
 
 \begin{itemize}
     \item Username: \texttt{appuser}
@@ -183,13 +182,12 @@ The first run needs some time to download, but the next ones will use the downlo
 \end{itemize}
 
 \noindent After the log-in, it is displayed a checkbox in order to select what authorizations will be delegated to the client app. Select \texttt{resorce.read}, \texttt{resource.write} or both. 
-Finally, the user will be redirected to the homepage with an access token. Now, it is time to request the resource using the two links at the end of the page. If the client is authorized, it will print a simple message, otherwise a 403 HTTP error is displayed (Forbidden). In addiction, it is available the refresh token flow based on the authorized resources or a subset of them (e.g. if someone has the access token for both scopes, it can make the token refresh for only one too). To stop the application, simply use \texttt{Crtl+C} command on the terminal and finally a:
+Finally, the user will be redirected to the homepage with an access token. Now, it is time to request the resource using the two links at the end of the page. If the client is authorized, it will print a simple message, otherwise a 403 HTTP error is displayed (Forbidden). In addiction, it is available the refresh token flow based on the authorized resources or a subset of them (e.g. if someone has the access token for both scopes, it can make the token refresh for only one too). To stop the application and safely detach all the resources, \texttt{Crtl+C} command on the terminal and finally:
 \begin{lstlisting}[language=bash]
   $ docker-compose down
 \end{lstlisting}
 
-\noindent To safely detach all the resources.
-The full screen video captioning of the example is available in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v0.5-alpha/hw-security-custom-screen.mp4}}}. 
+\noindent The full screen video captioning of the example is available in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v0.5-alpha/hw-security-custom-screen.mp4}}} or in the resources. 
 % ------ END OF SECTION A.2.2 ------
 % ------ END OF SECTION A.2 ------
 
