@@ -67,6 +67,7 @@ Last but not least, the \textbf{index.js} located in \texttt{src/constants} cont
 \end{figure}
 
 \subsubsection{Registration process}
+\label{regprocess}
 To enable the Spring Boot server to perform a social login with an \oauth\ provider, the first step is to create an application in the provider's developer console and obtain the \texttt{client\_id} and \texttt{client\_secret}. These two strings are used by the providers (Google, Facebook and so on) to identify our server application. Besides, there are some other parameters to consider:
 
 \begin{itemize}
@@ -363,6 +364,7 @@ It must be pointed out that even if the AuthZ server implements the JWT endpoint
 % ------ SECTION B.3 ------
 \section{Dockerization}
 To best manage, debug and deploy the two solutions, it has been chosen to dockerize the single servers. More in details, every module has its own \texttt{Dockerfile} and each demo has its \textit{docker-compose-build.yaml} to build and run at the same time all the modules with the network configuration. Moreover, the pre-built images are available on Docker Hub and a special \texttt{docker-compose.yaml} for each solution can be used to rapidly pull all the images without wasting time to build (this is mainly done for the User Guide to rapidly test and run the examples).
+An important note about the example with Google/Facebook before its compilation: set client\_id and client\_secret retrieved from the registration process in Section \ref{regprocess} into the \texttt{docker-compose-build.yaml} file.
 
 % ------ SECTION B.3.1 ------
 \subsection{\oauth\ with Google/Facebook}
