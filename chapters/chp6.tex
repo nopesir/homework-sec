@@ -362,11 +362,11 @@ It must be pointed out that even if the AuthZ server implements the JWT endpoint
 
 % ------ SECTION B.3 ------
 \section{Dockerization}
-In order to best manage, debug and deploy the two solutions, it has chosen to dockerize the single servers. More in details, every module has its own \texttt{Dockerfile} and each demo has its \textit{docker-compose-build.yaml} to build and run at the same time all the modules with the network configuration. Moreover, the pre-built images are available on Docker Hub and a special \texttt{docker-compose.yaml} for each solution can be used to rapidly pull all the images without wasting time to build (this is mainly done for the User Guide in order to rapidly test and run the examples).
+To best manage, debug and deploy the two solutions, it has been chosen to dockerize the single servers. More in details, every module has its own \texttt{Dockerfile} and each demo has its \textit{docker-compose-build.yaml} to build and run at the same time all the modules with the network configuration. Moreover, the pre-built images are available on Docker Hub and a special \texttt{docker-compose.yaml} for each solution can be used to rapidly pull all the images without wasting time to build (this is mainly done for the User Guide to rapidly test and run the examples).
 
 % ------ SECTION B.3.1 ------
 \subsection{\oauth\ with Google/Facebook}
-The first demo has two modules: the React web-app and the Spring Boot JAVA server. Each of them has its own \texttt{Dockerfile}. In particular, in the React web-app there is a two-staged docker build:
+The first demo has two modules: the React web-app and the Spring Boot JAVA server. Each of them has its \texttt{Dockerfile}. In particular, in the React web-app, there is a two-staged docker build:
 
 \begin{itemize}
     \item The app is built by using as base image \texttt{node:12.4.0-alpine}, producing the web-app.
@@ -380,13 +380,13 @@ The first demo has two modules: the React web-app and the Spring Boot JAVA serve
     \item After that the application is packed in a \texttt{.jar}, the second stage uses \texttt{openjdk:8-jre-alpine} (a minimal image) to copy the package and run the server once that the container starts up.
 \end{itemize}
 
-These \texttt{Dockerfile}s are not meant to be used singularly, but through \texttt{docker-compose}. The \texttt{docker-compose-build.yaml} file is responsible to use each \texttt{Dockerfile} to build the images, expose the containers in predefined ports and create some basic container network configuration. In order to start the local build and run the demo, the command is
+These \texttt{Dockerfile}s are not meant to be used singularly but through \texttt{docker-compose}. The \texttt{docker-compose-build.yaml} file is responsible to use each \texttt{Dockerfile} to build the images, expose the containers in predefined ports and create some basic container network configuration. To start the local build and run the demo, the command is
 
 \begin{lstlisting}[language=bash, basicstyle=\fontsize{12}{14}\ttfamily]
   $ docker-compose -f docker-compose-build.yaml up
 \end{lstlisting}
 
-\noindent That builds everything from scratch. The command needs time (there are some tasks like \texttt{npm install} that are heavy), but at the end the two modules will be ready to test. The \texttt{docker-compose.yaml} can be used instead for a 
+\noindent That builds everything from scratch. The command needs time (there are some tasks like \texttt{npm install} that are heavy), but in the end, the two modules will be ready to test. The \texttt{docker-compose.yaml} can be used instead for a 
 quicker run without build.
 
 It is really important to type the same command with the \texttt{down} option when the test is finished in order to release all the residual resources of Docker.
@@ -394,7 +394,7 @@ It is really important to type the same command with the \texttt{down} option wh
 
 % ------ SECTION B.3.2 ------
 \subsection{\oauth\ with custom AuthZ/Resource servers}
-The dockerization design of the second example is identical to the first one: a \texttt{Dockerfile} for each server module that are used only by the \texttt{docker-compose-build.yaml} file in order to entirely build and run locally the solution. The three servers use Open Liberty as server runtime, integrated in the project as Maven dependency. Moreover, some arguments are editable from the compose in order to correctly print personalized version of the configuration file (e.g. for the user definition or for the secrets definition).
+The dockerization design of the second example is identical to the first one: a \texttt{Dockerfile} for each server module that are used only by the \texttt{docker-compose-build.yaml} to entirely build and run locally the solution. The three servers use Open Liberty as server runtime, integrated with the project as Maven dependency. Moreover, some arguments are editable from the compose to correctly print personalized version of the configuration file (e.g. for the user definition or for the secrets definition).
 
 The network namespace is configured as a simple LAN on \texttt{172.28.0.0/16} and the three servers are placed as follows:
 
@@ -404,10 +404,10 @@ The network namespace is configured as a simple LAN on \texttt{172.28.0.0/16} an
     \item Resource server: 172.28.1.3 on tcp/9280
 \end{itemize}
 
-The client and the authorization servers have the exposed ports on the local guest machine in order to be reacheable from the user during the redirections of the protocol itself. The resource server is not accessible from the host, but only indirectly from the client server through its APIs and using the access tokens (to provide a basic isolation of the resources).
+The client and the authorization servers have the exposed ports on the local guest machine to be reachable from the user during the redirections of the protocol itself. The resource server is not accessible from the host, but only indirectly from the client server through its APIs and using the access tokens (to provide basic isolation of the resources).
 \label{docker}
 
-Finally, in order to analyze and debug the messages exchanged in the Docker LAN, it has been used the \texttt{netshoot} \cite{netsh} container tool alongside \texttt{termshark} \cite{terms}. To catch all the HTTP exchanged messages from one of the three containers, simply run:
+Finally, to analyze and debug the messages exchanged in the Docker LAN, it has been used the \texttt{netshoot} \cite{netsh} container tool alongside \texttt{termshark} \cite{terms}. To catch all the HTTP exchanged messages from one of the three containers, simply run:
 \begin{lstlisting}[basicstyle=\ttfamily]
   $ docker run -it --rm --net \ 
   $ container:<container_name> \ 
