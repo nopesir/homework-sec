@@ -152,7 +152,7 @@ Once that the authorization request is received, Spring Security's \oauth\ redir
 
 At this point, \textbf{OAuth2AuthenticationFailureHandler.java} is invoked in case of failure (it redirects the user on the React app with an err message in the query string), otherwise, the flow continues and the previous callback contains the authorization code that is automatically exchanged by Spring Security for an access token. The next step involves \textbf{CustomOAuth2UserService.java} that takes all the details of the authenticated user by performing HTTP GETs to the defined endpoints available in the Google/Facebook documentation and adds/updates the database. Spring Security is really useful in this objective because it has already implemented the HTTP API calls for the most famous providers and it is almost automated. 
 
-Finally, the last step is devoted to \textit{OAuth2AuthenticationSuccessHandler.java}, that creates a JWT token and sends it to the React app's \texttt{redirect\_uri} previously sent at the beginning. Once that the client app receives it, it can make an HTTP GET with the JWT on the endpoint of the Spring Boot server \texttt{/user/me} to retrieve the user information and display it to the client. The generic flow with Google is available in \texttt{.svg} format\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.5-alpha/flow.svg}} in the resources.
+Finally, the last step is devoted to \textbf{OAuth2AuthenticationSuccessHandler.java}, that creates a JWT token and sends it to the React app's \texttt{redirect\_uri} previously sent at the beginning. Once that the client app receives it, it can make an HTTP GET with the JWT on the endpoint of the Spring Boot server \texttt{/user/me} to retrieve the user information and display it to the client. The generic flow with Google is available in \texttt{.svg} format\footnote{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.5-alpha/flow.svg}} in the resources.
 
 
 In Section \ref{csrf} has been discussed the problem of CSRF. In particular, the recommended way of avoiding this kind of attack is the use of a \texttt{state} parameter. When the Spring Boot server redirects the user to the provider's login page (see \hyperlink{foo}{here} the HTTP redirection link), it has to first generate this string variable and send it as HTTP parameter with the \texttt{redirect\_uri}. The provider must return this parameter unaltered in the \oauth\ callback and the server will compare the generated one with the received one. In case they don't match, the flow is stopped and the request denied.
@@ -167,7 +167,7 @@ For further information on Spring Security, see the documentation \cite{sprsec}.
 
 % ------ SECTION B.2.2 ------
 \subsection{\oauth\ with custom AuthZ/Resource servers}
-This second implementation example is required to better understand \oauth\ and his actors without the customization of providers like Google. It is possible to build an authorization server and a resource server using the \textit{authorization grant flow} (\ref{authcg}). For this task, before using directly the \rfc{6749}, the developer.okta.com's article "What is the OAuth 2.0 Authorization Code Grant Type?" \cite{oauth2} is a good start. The demo is composed by three servers:
+This second implementation example is required to better understand \oauth\ and his actors without the customization of providers like Google. It is possible to build an authorization server and a resource server using the \textit{Authorization Grant Flow} (\ref{authcg}). For this task, before consulting directly the \rfc{6749}, the developer.okta.com's article "What is the OAuth 2.0 Authorization Code Grant Type?" \cite{oauth2} is a good start. The demo is composed by three servers:
 
 \begin{itemize}
     \item \textit{Client-server}, that acts like the Spring Boot server in the previous example (the client of the \oauth\ protocol specification that is interested in accessing a resource), but without a React web app: it is used a classic routing website served directly from the server itself.
@@ -198,54 +198,52 @@ This web-server implements four Servlets\footnote{Exploit dynamic web content wi
 
 \noindent It is important though to point out that the URIs are configured for the Docker virtualized network and they need to be changed to be run without Docker.
 
-The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is represented by the \textit{AuthorizationCodeServlet} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \texttt{http://localhost:9180/callback?code=tughdj57gh5hfd\&state=57t7fdhgwejgu54h} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
+The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is implemented in \textbf{AuthorizationCodeServlet.java} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \textcolor{blue}{\texttt{http://localhost:9180/callback?code=tughdj57gh5hfd\&state=57t7fdhgwejgu54h}} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
 
-The second Servlet starts as soon as the AuthZ server redirects back to \texttt{/callback} with the AuthZ code and the \texttt{state} as parameters. The implementation is in class \textit{CallbackServlet}. First, it checks the \texttt{state} match and then it uses the received code to request an access token. In this case, there is no browser interaction, it is all implemented through HTTP POST and JAX RS Client: here the token endpoint requires the two secrets too in the \textit{Authentication} header, along with the code, the type of the code and the redirect URI. Now the client has the access token (and the refresh token too) and it can access information on the resource server by using the third Servlet implemented in \textit{DownstreamCallServlet} waiting on \texttt{/downstram} with two actions passed as query params: \textit{read} or \textit{write}. Based on the action, the Servlet calls the resource server's APIs with the access token in the Authorization HTTP header and receives a string if it has access or an HTTP Forbidden error if it does not.
+The second Servlet starts as soon as the AuthZ server redirects back to \texttt{/callback} with the AuthZ code and the \texttt{state} as parameters. The implementation is in \textbf{CallbackServlet.java}. First, it checks the \texttt{state} match and then it uses the received code to request an access token. In this case, there is no browser interaction, it is all implemented through HTTP POST and JAX RS Client: here the token endpoint requires the two secrets too in the \textit{Authentication} header, along with the code, the type of the code and the redirect URI. Now the client has the access token (and the refresh token too) and it can access information on the resource server by using the third Servlet implemented in \textbf{DownstreamCallServlet.java} waiting on \texttt{/downstram} with two actions passed as query params: \textit{read} or \textit{write}. Based on the action, the Servlet calls the resource server's APIs with the access token in the Authorization HTTP header and receives a string if it has access or an HTTP Forbidden error if it does not.
 
-The last Servlet is used to obtain a new access token starting from the refresh token. This is useful because it does not require the user to repeat all the flow. The Servlet is ready to start at \texttt{/refreshtoken} and, similarly to the code of \textit{CallbackServlet}, it uses only JAX RS Client and HTTP POST to build the request, that has the refresh token, the scopes and as grant type \texttt{refresh\_token}. The Authentication header with the encoded secrets is added too. The request is posted on the same token endpoint of the AuthZ server, but the AuthZ server will know what to do because of the \texttt{grant\_type} param. If the response is 200 HTTP, the new token is stored and it can be used for the next calls to the resource server.
+The last Servlet is used to obtain a new access token starting from the refresh token. This is useful because it does not require the user to repeat all the flow. The Servlet is ready to start at \texttt{/refreshtoken} and, similarly to the code in \textbf{CallbackServlet.java}, it uses only JAX RS Client and HTTP POST to build the request, that has the refresh token, the scopes and as grant type \texttt{refresh\_token}. The Authentication header with the encoded secrets is added too. The request is posted on the same token endpoint of the AuthZ server, but the AuthZ server will know what to do because of the \texttt{grant\_type} param. If the response is 200 HTTP, the new access token and the new refresh token are stored and they can be used for the next calls.
 
-To start the first Servlet and/or to know every parameter and token for educational purposes, a simple homepage is built (\texttt{src/main/webapp/index.jsp}) that in a few words prints all the information and makes available the endpoints (by mouse click) to the user.
+To start the first Servlet and/or to know every parameter and token (for educational purposes), a simple homepage is built (\texttt{src/main/webapp/}\textbf{index.jsp}) that in a few words prints all the information and makes available the endpoints (by mouse click) to the user.
 
 \subsubsection{Authorization-server}
 This server is the core of the \oauth\ implementation. For simplicity, a pre-configured client and a pre-configured user are used, stored in \texttt{src/main/resources/data.sql.template} (it must be pointed out though that for a production environment the passwords must be hashed). 
 
-The first important endpoint is the AuthZ endpoint that is responsible for the authentication of the user to subsequently ask for the needed permissions. The Section 3.1 of the \rfc{6749} states that "The authorization server MUST support the use of the HTTP "GET" method [\rfc{2616}] for the authorization endpoint and MAY support the use of the "POST" method as well.". In this implementation is preferred the HTTP GET method alone. Since the specification does not ask for a particular login flow, a simple login form with Jakarta EE Security can be used. The class \textit{AuthorizationEndpoint} contains:
+The first important endpoint is the AuthZ endpoint that is responsible for the authentication of the user to subsequently ask for the needed permissions. The Section 3.1 of the \rfc{6749} states that "The authorization server MUST support the use of the HTTP "GET" method [\rfc{2616}] for the authorization endpoint and MAY support the use of the "POST" method as well.". In this implementation is preferred the HTTP GET method alone. Since the specification does not ask for a particular login flow, a simple login form with Jakarta EE Security can be used. The file \textbf{AuthorizationEndpoint.java} contains:
 
 \begin{itemize}
     \item \texttt{@FormAuthenticationMechanismDefinition} to ensure that the user is logged to proceed.
-    \item HTTP GET Servlet that checks the validity of the secrets, the redirect URI, the requested scope and saves all this params in the session and redirects the user to the \texttt{authorization.jsp} from where it selects what to authorize with some checkboxes.
-    \item HTTP POST Servlet that receives the user checkboxes from \texttt{authorization.jsp}, uses the saved params in the preceding point to populate a new AuthZ code model with the authorization code, the \texttt{client\_id}, the approved scopes, the expiration date and so on and redirects back to the client on the \texttt{redirect\_uri} by adding to the query params the new code alongside the state received at the beginning for avoiding CSRF. The \texttt{redirect\_uri} must exist in the table as an authorized URI for redirections.
+    \item HTTP GET Servlet that checks the validity of the secrets, the redirect URI, the requested scope and saves all this params in the session and redirects the user to \textbf{authorization.jsp} from where it selects what to authorize with some checkboxes.
+    \item HTTP POST Servlet that receives the user checkboxes from \textbf{authorization.jsp}, uses the saved params in the preceding point to populate a new AuthZ code model with the authorization code, the \texttt{client\_id}, the approved scopes, the expiration date and so on and redirects back to the client on the \texttt{redirect\_uri} by adding to the query params the new code alongside the state received at the beginning for avoiding CSRF. The \texttt{redirect\_uri} must exist in the table as an authorized URI for redirections.
 \end{itemize}
 
-\noindent As mentioned before, retrieving the access token starting from the authorization token is an action that does not require the user nor the browser intervention. The token endpoint of the AuthZ server, under the client-server, uses JAX RS to expose the endpoint. The class \textit{TokenEndpoint} implements the next step of the workflow: retrieve the access token. The Servlet accepts only HTTP POST and, as mentioned in the \oauth\ specification, accepted parameters mus be \texttt{application/x-www-form-urlencoded}. The first thing that the Servlet checks are the \texttt{grant\_type} that must be \texttt{authorization\_code} since this is an AUthZ Code Grant flow implementation. The second check is on \texttt{client\_id} and \texttt{client\_secret} that are in the Authorization header of the received post (this is required by the protocol to identify the client). The two secrets are encoded into Base64url following this conversion:
-\begin{lstlisting}
-  BASE64URL(client_id:client_secret)
-\end{lstlisting}
+\noindent As mentioned before, retrieving the access token starting from the authorization token is an action that does not require the user nor the browser intervention. The token endpoint of the AuthZ server, under the \textit{client-server}, uses JAX RS to expose the endpoint. The class \textbf{TokenEndpoint.java} implements the next step of the workflow: retrieve the access token. The Servlet accepts only HTTP POST and, as mentioned in the \oauth\ specification, accepted parameters mus be \texttt{application/x-www-form-urlencoded}. The first thing that the Servlet checks is the \texttt{grant\_type} that must be \texttt{authorization\_code} since this is an AUthZ Code Grant flow implementation. The second check is on \texttt{client\_id} and \texttt{client\_secret} that are in the Authorization header of the received post (this is required by the protocol to identify the client). The two secrets are encoded into Base64url following this conversion:
 
-\noindent Finally, the Servlet creates the access token by using \textit{AuthorizationCodeGrantTypeHandler}. 
+  \texttt{BASE64URL(client\_id:client\_secret)}
 
-Since the endpoint can and should be used for both the requests of getting an access token starting from an authorization code or getting an access token starting from a refresh token, the Servlet must be dynamically capable of choosing the right class instance. A possible solution is an implementation through the Contexts and Dependency Injection (CDI). More in details, an \textit{AuthorizationGrantTypeHandler} interface is created and implemented with \textit{AuthorizationCodeGrantTypeHandler} for AuthZ code to access token and with \textit{RefreshTokenGrantTypeHandler} for refresh token to access token. Each class is decorated with the \texttt{@Named} that specifies for the first one the \texttt{authorization\_code} type and the second one the \texttt{refresh\_token} type. By using the decoration, in the Servlet can be written a single line of code that uses the received string (\texttt{grantType}) on the endpoint and uses it directly to load one handler or the other one:
+\noindent Finally, the Servlet creates the access token by using \textbf{AuthorizationCodeGrantTypeHandler.java}. 
 
-\noindent \texttt{\footnotesize{AuthorizationGrantTypeHandler authorizationGrantTypeHandler= \\
-\indent authorizationGrantTypeHandlers.select(NamedLiteral.of(grantType)).get();}} 
+Since the endpoint can and should be used for both the requests of getting an access token starting from an authorization code or getting an access token starting from a refresh token, the Servlet must be dynamically capable of choosing the right class instance. A possible solution is an implementation through the \textit{Contexts and Dependency Injection} (CDI). More in details, the \textbf{AuthorizationGrantTypeHandler.java} interface is created and implemented with \textbf{AuthorizationCodeGrantTypeHandler.java} for AuthZ code to access token and with \textbf{RefreshTokenGrantTypeHandler.java} for refresh token to access token. Each class is decorated with \texttt{@Named} that specifies for the first one the \texttt{authorization\_code} type and the second one the \texttt{refresh\_token} type. By using the decoration, in the Servlet can be written a single line of code that uses the received string (\texttt{grantType}) on the endpoint and uses it directly to load one handler or the other one:
+
+\texttt{AuthorizationGrantTypeHandler authorizationGrantTypeHandler = } 
+
+\hspace{0.8cm} \texttt{authorizationGrantTypeHandlers.select(NamedLiteral.of(grantType)).get();}
 
 \noindent To generate tokens though, it is required that the server signs them with a private RSA key. It has been used OpenSSL to generate the private key:
-
-\begin{lstlisting}[language=bash, basicstyle=\fontsize{9}{11}\ttfamily]  
-  $ openssl genpkey -algorithm RSA -out private-key.pem -pkeyopt rsa_keygen_bits:2048
-\end{lstlisting}
+ 
+  \texttt{\$ openssl genpkey -algorithm RSA -out private-key.pem \textbackslash}
+  
+  \hspace{0.8cm} \texttt{-pkeyopt rsa\_keygen\_bits:2048}
 
 \noindent And the path to this key is saved in \texttt{resources/META-INF/microprofile-config.properties} to be injected into the server configuration info to be loaded directly from the code. Alongside the private key, a corresponding public key is generated:
-
-\begin{lstlisting}[language=bash, basicstyle=\fontsize{9}{11}\ttfamily]  
-  $ openssl rsa -pubout -in private-key.pem -out public-key.pem
-\end{lstlisting}
+ 
+  \texttt{\$ openssl rsa -pubout -in private-key.pem -out public-key.pem}
 
 \noindent And stored in the same configuration file.
 
-When the resource server receives a request with an access token for a resource, it has to verify it by using the public key. Another endpoint is necessary on the AuthZ server: a JWK [\rfc{7517}] for public key distribution. This endpoint is mapped in \texttt{/jwk} and the Servlet is implemented by the class \textit{JWKEndpoint}. Thanks to the Nimbus library, the code is much more simplified with both the JWT and PEM formats compatibility (by specifying the param \texttt{format} in the URI query).
+When the resource server receives a request with an access token for a resource, it has to verify it by using the public key. Another endpoint is necessary on the AuthZ server: a JWK [\rfc{7517}] for public key distribution. This endpoint is mapped in \texttt{/jwk} and the Servlet is implemented by the class \textbf{JWKEndpoint.java}. Thanks to the Nimbus library, the code is much more simplified with both the JWT and PEM formats compatibility (by specifying the param \texttt{format} in the URI query).
 
-For what concerns the authorization endpoint, it was already mentioned the existence of the \texttt{AuthorizationGrantTypeHandler}, but how does it work? What does the endpoint returns? More in details, it uses the Nimbus JOSE library for creating a JWT token. The first thing to do is to create a JWT header and then populate the payload with some claims (like the issuer, the claimer and so on). Then, the token must be signed with the RSA Private Key. This step can be divided into two: 
+For what concerns the authorization endpoint, it was already mentioned the existence of \textbf{AuthorizationGrantTypeHandler.java}, but how does it work? What does the endpoint returns? More in details, it uses the Nimbus JOSE library for creating a JWT token. The first thing to do is to create a JWT header and then populate the payload with some claims (like the issuer, the claimer and so on). Then, the token must be signed with the RSA Private Key. This step can be divided into two: 
 
 \begin{itemize}
     \item The JWT is created starting from the claims and the header.
@@ -254,15 +252,15 @@ For what concerns the authorization endpoint, it was already mentioned the exist
 
 \noindent Finally, the JWT is ready and it is serialized into a \textit{String}. More in details, this serialization follows the "JWS Compact Serialization" defined in Section 7.1 of the \rfc{7515} \cite{RFC7515}:
 
-\begin{lstlisting}
-  BASE64URL(UTF8(JWS Protected Header)) || '.' ||
-  BASE64URL(JWS Payload) || '.' ||
-  BASE64URL(JWS Signature)
-\end{lstlisting}
+  \texttt{BASE64URL(UTF8(JWS Protected Header)) || '.' ||}
+  
+  \texttt{BASE64URL(JWS Payload) || '.' ||}
+  
+  \texttt{BASE64URL(JWS Signature)}
 
 \noindent An example of a valid serialized JWT for this implementation could be:
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\ttfamily]
   eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9
   .
   eyJzdWIiOiJhcHB1c2VyIiwiYXVkIjoiaHR0cDpcL1wvMTcyLjI4LjEuMzo5Mjg
@@ -284,7 +282,7 @@ For what concerns the authorization endpoint, it was already mentioned the exist
 
 \noindent Where the first part of the string is the Base64url encoded JOSE Header that specifies the used algorithm and the type. The decoded string would be:
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\ttfamily]
   {
     "typ":"JWT",
     "alg":"RS256"
@@ -293,7 +291,7 @@ For what concerns the authorization endpoint, it was already mentioned the exist
 
 \noindent The second part represents the encoded JWS Payload with all the previously built claims, decoded as:
 
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\ttfamily]
   {
     "sub":"appuser",
     "aud":"http://172.28.1.3:9280",
@@ -329,20 +327,20 @@ For what concerns the authorization endpoint, it was already mentioned the exist
     \item \texttt{client\_id}: The ID of the \oauth\ web-server client.
 \end{itemize}
 
-\noindent These claims are built in the token endpoint response code in the \textit{AbstractGrantTypeHandler} class. For what concerns the \texttt{refresh\_token}, the JWT is similar, with few claims and expiration of one day.
+\noindent These claims are built in the token endpoint response code in the \textbf{AbstractGrantTypeHandler.java} class. For what concerns the \texttt{refresh\_token}, the JWT is similar, with few claims and expiration of one day.
 Finally, the third and last part of the JWT represents the Base64url encoded JWS Signature performed by the server on the following octets:
-\begin{lstlisting}
+\begin{lstlisting}[basicstyle=\ttfamily]
   ASCII(
     BASE64URL(UTF8(JWS Protected Header)) || '.' ||
     BASE64URL(JWS Payload)
   )
 \end{lstlisting}
 
-\noindent Those octets are signed using RSASSA-PKCS1-v1\_5 with the SHA-256 hash algorithm (defined as \texttt{RS256} in the JOSE Header) by the server and finally encoded in Base64url.
+\noindent Those octets are signed using \textit{RSASSA-PKCS1-v1\_5} with the \textit{SHA-256} hash algorithm (defined as \texttt{RS256} in the JOSE Header) by the server and finally encoded in Base64url.
 
-The last thing to do is build the JSON response and add the elements and the serialized JWTs (refresh and access tokens) to return the information requested by the client. This step is implemented into the \textit{AuthorizationCodeGrantTypeHandler} class, that once it has serialized the two JWTs, it builds the response:
+The last thing to do is build the JSON response and add the elements and the serialized JWTs (refresh and access tokens) to return the information requested by the client. This step is implemented in the \textbf{AuthorizationCodeGrantTypeHandler.java} class, that once it has serialized the two JWTs, it builds the response:
 
-\begin{lstlisting}[language=bash, basicstyle=\fontsize{12}{14}\ttfamily]
+\begin{lstlisting}[language=bash, basicstyle=\ttfamily]
   {
     "access_token": "averylongstring,seepage46" ,
     "token_type": "Bearer",  
@@ -355,7 +353,7 @@ The last thing to do is build the JSON response and add the elements and the ser
 A detailed diagram of the AuthZ Code Grant flow for this implementation is available in the resources as \texttt{flow\_access-token.svg}\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v1.0/flow_access-token.svg}}, while a detailed diagram of the Refresh Token flow is available in the resources as \texttt{flow\_refresh-token.svg}\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v1.0/flow_refresh-token.svg}}.
 
 \subsubsection{Resource-server}
-This third and last server exposes the APIs to the client for accessing the user's information by consuming the access token retrieved in the previous steps. This server uses JAX RS and MicroProfile. In particular, MicroProfile JWT is responsible for the validation and the mapping of the scopes in Jakarta roles. Thanks to these libraries, the code is pretty simple. In particular, the class \textit{OAuth2ResourceServerApplication} is decorated with \texttt{@DeclareRoles} to define the scopes available and \texttt{@LoginConfig} to specify the authentication method. Finally, the class \textit{ProtectedResource} represents the resource (in terms of called function) that can be personalized to return a file or any other protected information (in this example, it is a string).
+This third and last server exposes the APIs to the client for accessing the user's information by consuming the access token retrieved in the previous steps. This server uses JAX RS and MicroProfile. In particular, MicroProfile JWT is responsible for the validation and the mapping of the scopes in Jakarta roles. Thanks to these libraries, the code is pretty simple. In particular, the class \textbf{OAuth2ResourceServerApplication.java} is decorated with \texttt{@DeclareRoles} to define the scopes available and \texttt{@LoginConfig} to specify the authentication method. Finally, the class \textbf{ProtectedResource.java} represents the resource (in terms of called function) that can be personalized to return a file or any other protected information (in this example, it is a string).
 
 It must be pointed out that even if the AuthZ server implements the JWT endpoint, it has been chosen to add the key directly in the server's resources (to use the endpoint, the path in the configuration file has to be replaced with the endpoint of the AuthZ server).
 % ------ END OF SECTION B.2.2 ------
@@ -363,16 +361,16 @@ It must be pointed out that even if the AuthZ server implements the JWT endpoint
 
 % ------ SECTION B.3 ------
 \section{Dockerization}
-To best manage, debug and deploy the two solutions, it has been chosen to dockerize the single servers. More in details, every module has its own \texttt{Dockerfile} and each demo has its \textit{docker-compose-build.yaml} to build and run at the same time all the modules with the network configuration. Moreover, the pre-built images are available on Docker Hub and a special \texttt{docker-compose.yaml} for each solution can be used to rapidly pull all the images without wasting time to build (this is mainly done for the User Guide to rapidly test and run the examples).
-An important note about the example with Google/Facebook before its compilation: set client\_id and client\_secret retrieved from the registration process in Section \ref{regprocess} into the \texttt{docker-compose-build.yaml} file.
+To best manage, debug and deploy the two solutions, it has been chosen to dockerize the single servers. More in details, every module has its own \textbf{Dockerfile} and each demo has its \textbf{docker-compose-build.yaml} to build and run at the same time all the modules with the network configuration. Moreover, pre-built images are available on Docker Hub and a special \textbf{docker-compose.yaml} for each solution can be used to rapidly pull all the images without wasting time to build (this is mainly done for the User Guide to rapidly test and run the examples).
+An important note about the example with Google/Facebook before its compilation: set \texttt{client\_id} and \texttt{client\_secret} retrieved from the registration process in Section \ref{regprocess} into the \textbf{docker-compose-build.yaml} file.
 
 % ------ SECTION B.3.1 ------
 \subsection{\oauth\ with Google/Facebook}
-The first demo has two modules: the React web-app and the Spring Boot JAVA server. Each of them has its \texttt{Dockerfile}. In particular, in the React web-app, there is a two-staged docker build:
+The first demo has two modules: the React web-app and the Spring Boot JAVA server. Each of them has its \textbf{Dockerfile}. In particular, in the React web-app, there is a two-staged docker build:
 
 \begin{itemize}
     \item The app is built by using as base image \texttt{node:12.4.0-alpine}, producing the web-app.
-    \item The web-app is copied in a simple \texttt{nginx:1.17.0-alpine} image that implements the NGINX server alongside a standard \texttt{nginx.conf}, exposing the tcp/9090 port to \texttt{localhost}.
+    \item The web-app is copied in a simple \texttt{nginx:1.17.0-alpine} image that implements the NGINX server alongside a standard \textbf{nginx.conf}, exposing the tcp/9090 port to \texttt{localhost}.
 \end{itemize}
 
 \noindent In the Spring Boot server, the approach is similar:
@@ -382,21 +380,18 @@ The first demo has two modules: the React web-app and the Spring Boot JAVA serve
     \item After that the application is packed in a \texttt{.jar}, the second stage uses \texttt{openjdk:8-jre-alpine} (a minimal image) to copy the package and run the server once that the container starts up.
 \end{itemize}
 
-These \texttt{Dockerfile}s are not meant to be used singularly but through \texttt{docker-compose}. The \texttt{docker-compose-build.yaml} file is responsible to use each \texttt{Dockerfile} to build the images, expose the containers in predefined ports and create some basic container network configuration. To start the local build and run the demo, the command is
+These Dockerfiles are not meant to be used singularly but through \texttt{docker-compose}. The \textbf{docker-compose-build.yaml} file is responsible to use each \textbf{Dockerfile} to build the images, expose the containers in predefined ports and create some basic container network configuration. To start the local build and run the demo, the command is
 
-\begin{lstlisting}[language=bash, basicstyle=\fontsize{12}{14}\ttfamily]
-  $ docker-compose -f docker-compose-build.yaml up
-\end{lstlisting}
+  \texttt{\$ docker-compose -f docker-compose-build.yaml up}
 
-\noindent That builds everything from scratch. The command needs time (there are some tasks like \texttt{npm install} that are heavy), but in the end, the two modules will be ready to test. The \texttt{docker-compose.yaml} can be used instead for a 
-quicker run without build.
+\noindent That builds everything from scratch. The command needs time (there are some tasks like \texttt{npm install} that are heavy), but in the end, the two modules will be ready to test. The \textbf{docker-compose.yaml} can be used instead for a quicker run without build.
 
 It is really important to type the same command with the \texttt{down} option when the test is finished in order to release all the residual resources of Docker.
 % ------ END OF SECTION B.3.1 ------
 
 % ------ SECTION B.3.2 ------
 \subsection{\oauth\ with custom AuthZ/Resource servers}
-The dockerization design of the second example is identical to the first one: a \texttt{Dockerfile} for each server module that are used only by the \texttt{docker-compose-build.yaml} to entirely build and run locally the solution. The three servers use Open Liberty as server runtime, integrated with the project as Maven dependency. Moreover, some arguments are editable from the compose to correctly print personalized version of the configuration file (e.g. for the user definition or for the secrets definition).
+The dockerization design of the second example is identical to the first one: a \textbf{Dockerfile} for each server module that are used only by the \textbf{docker-compose-build.yaml} to entirely build and run locally the solution. The three servers use Open Liberty as server run-time, integrated with the project as Maven dependency. Moreover, some arguments are editable from the compose to correctly print personalized version of the configuration file (e.g. for the user definition or for the secrets definition).
 
 The network namespace is configured as a simple LAN on \texttt{172.28.0.0/16} and the three servers are placed as follows:
 
@@ -410,12 +405,15 @@ The client and the authorization servers have the exposed ports on the local gue
 \label{docker}
 
 Finally, to analyze and debug the messages exchanged in the Docker LAN, it has been used the \texttt{netshoot} \cite{netsh} container tool alongside \texttt{termshark} \cite{terms}. To catch all the HTTP exchanged messages from one of the three containers, simply run:
-\begin{lstlisting}[basicstyle=\ttfamily]
-  $ docker run -it --rm --net \ 
-  $ container:<container_name> \ 
-  $ --cap-add=NET_ADMIN --cap-add=CAP_NET_RAW nicolaka/netshoot \
-  $ termshark -i eth0 -Y http
-\end{lstlisting}
+
+  \texttt{\$ docker run -it --rm --net \textbackslash}
+  
+  \hspace{0.8cm} \texttt{container:<container\_name> \textbackslash} 
+      
+  \hspace{0.8cm} \texttt{--cap-add=NET\_ADMIN --cap-add=CAP\_NET\_RAW nicolaka/netshoot \textbackslash}
+
+  \hspace{0.8cm} \texttt{termshark -i eth0 -Y http}
+
 
 % ------ END OF SECTION B.3.2 ------
 % ------ END OF SECTION B.3 ------
