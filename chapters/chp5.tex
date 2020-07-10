@@ -21,47 +21,38 @@ The Docker Documentation \cite{docker} explains how to correctly install Docker 
 \paragraph{Ubuntu Linux (16.04 - 18.04 - 20.04)} First, all previous versions must be removed. 
 
 \noindent From the bash terminal:
-\begin{lstlisting}[language=bash]
-  $ sudo apt-get remove docker docker-engine docker.io \
-      containerd runc
-\end{lstlisting}
+  
+\texttt{\$ sudo apt-get remove docker docker-engine docker.io containerd runc}
 
 \noindent Update and install packages to install dependencies over HTTPS:
-\begin{lstlisting}[language=bash]
-  $ sudo apt-get update
-  $ sudo apt-get install \
-      apt-transport-https \
-      ca-certificates \
-      curl \
-      gnupg-agent \
-      software-properties-common
-\end{lstlisting}
+
+\texttt{\$ sudo apt-get update}
+
+\texttt{\$ sudo apt-get install apt-transport-https ca-certificates curl \textbackslash} \\
+\indent \hspace{0.8cm} \texttt{gnupg-agent software-properties-common}
 
 \noindent Add Docker’s official GPG key:
-\begin{lstlisting}[language=bash, showstringspaces=false, basicstyle=\ttfamily]
-  $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \ 
-    sudo apt-key add -
-\end{lstlisting}
+
+  \texttt{\$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \textbackslash} \\
+  \indent \hspace{0.8cm} \texttt{sudo apt-key add -}
 
 \noindent Set-up the \textbf{stable} repository (change the \texttt{arch} param according to the architecture):
-\begin{lstlisting}[language=bash, showstringspaces=false, basicstyle=\ttfamily]
-  $ sudo add-apt-repository \
-    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) \
-    stable"
-\end{lstlisting}
+
+  \texttt{\$ sudo add-apt-repository \textbackslash} \\
+  \indent \hspace{0.8cm} \texttt{"deb [arch=amd64] https://download.docker.com/linux/ubuntu \textbackslash} \\
+  \indent \hspace{0.8cm} \texttt{\$(lsb\_release -cs) stable"}
 
 \noindent Install Docker:
-\begin{lstlisting}[language=bash]
-  $ sudo apt-get update
-  $ sudo apt-get install docker-ce docker-ce-cli containerd.io
-\end{lstlisting}
+
+  \texttt{\$ sudo apt-get update}
+  
+  \texttt{\$ sudo apt-get install docker-ce docker-ce-cli containerd.io}
 
 \noindent Add the current user to the \texttt{docker} group:
-\begin{lstlisting}[language=bash]
-  $ sudo groupadd docker
-  $ sudo usermod -aG docker $USER
-\end{lstlisting}
+  
+  \texttt{\$ sudo groupadd docker}
+  
+  \texttt{\$ sudo usermod -aG docker \$USER}
 
 \noindent For different Linux distros or architectures, the Official Docs\footnote{\url{https://docs.docker.com/engine/install/}} is available.
 
@@ -89,20 +80,20 @@ For Windows and macOS systems, \texttt{docker-compose} is included in the Docker
 On Ubuntu Linux, the steps follow.
 
 \noindent Install PIP:
-\begin{lstlisting}[language=bash]
-  $ sudo apt update
-  $ sudo apt install python3-pip
-\end{lstlisting}
+
+  \texttt{\$ sudo apt update}
+  
+  \texttt{\$ sudo apt install python3-pip}
 
 \noindent Upgrade PIP:
-\begin{lstlisting}[language=bash]
-  $ sudo pip3 install -U pip
-\end{lstlisting}
+
+  \texttt{\$ sudo pip3 install -U pip}
 
 \noindent Install docker-compose:
-\begin{lstlisting}[language=bash]
-  $ sudo pip3 install docker-compose
-\end{lstlisting}
+  
+  \texttt{\$ sudo pip3 install docker-compose}
+
+
 % ------ END OF SECTION A.1.2 ------
 % ------ END OF SECTION A.1 ------
 
@@ -124,9 +115,8 @@ In order to install and run the implementation example that interacts with Googl
 \newpage
 
 \noindent Then, in the same folder where \texttt{docker-compose.yaml} is, from the terminal:
-\begin{lstlisting}[language=bash]
-  $ docker-compose up
-\end{lstlisting}
+
+  \texttt{\$ docker-compose up}
 
 \noindent If all the dependencies are correctly installed and the docker daemon is running, \texttt{docker-compose} will automatically pull the containers, create the network namespace and start everything. The first run needs some time to download, but the next ones will use the downloaded data and will boot up the containers in a few seconds. The application now is running. From the browser, visit \texttt{http://localhost:9090} and the homepage will be displayed (Fig.~\ref{fig:home1}).
 
@@ -139,9 +129,8 @@ In order to install and run the implementation example that interacts with Googl
 \end{figure}
 
 \noindent To stop the application and safely detach all the resources, \texttt{Crtl+C} command on the terminal and finally a:
-\begin{lstlisting}[language=bash]
-  $ docker-compose down
-\end{lstlisting}
+
+  \texttt{\$ docker-compose down}
 
 \noindent The full screen video captioning of the example is available in the resources and in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security/releases/download/v0.2-alpha/hw-security-screen.mp4}}}. 
 
@@ -160,9 +149,8 @@ In order to install and run the implementation example that interacts with Googl
 In order to install and run the second example, the steps are almost the same as the previous subsection. The new \texttt{docker-compose.yaml} is available on the releases page\footnote{\url{https://github.com/nopesir/oauth-hw-security-custom/releases}} or in the resources (remove the previous \texttt{.yaml} file or choose another folder).
 
 \noindent Then, in the same folder where \texttt{docker-compose.yaml} is, from the terminal:
-\begin{lstlisting}[language=bash]
-  $ docker-compose up
-\end{lstlisting}
+
+  \texttt{\$ docker-compose up}
 
 \noindent If all the dependencies are correctly installed and the docker daemon is running, \texttt{docker-compose} will automatically pull the containers, create the network namespace and start everything. 
 The first run needs some time to download, but the next ones will use the downloaded data and will boot up the containers in seconds. The application now is running. From the browser, visit \texttt{http://localhost:9180} and the homepage will be displayed (Fig.~\ref{fig:home2}).
@@ -177,15 +165,14 @@ The first run needs some time to download, but the next ones will use the downlo
 \noindent Since this is an educational example, all the information are in plain text in the homepage. The first thing to do is to retrieve the access token by clicking on the link. Then, a log-in is necessary. The only available credentials are:
 
 \begin{itemize}
-    \item Username: \texttt{appuser}
-    \item Password: \texttt{appusersecret}
+    \item Username: \textit{appuser}
+    \item Password: \textit{appusersecret}
 \end{itemize}
 
 \noindent After the log-in, it is displayed a checkbox in order to select what authorizations will be delegated to the client app. Select \texttt{resorce.read}, \texttt{resource.write} or both. 
 Finally, the user will be redirected to the homepage with an access token. Now, it is time to request the resource using the two links at the end of the page. If the client is authorized, it will print a simple message, otherwise a 403 HTTP error is displayed (Forbidden). In addiction, it is available the refresh token flow based on the authorized resources or a subset of them (e.g. if someone has the access token for both scopes, it can make the token refresh for only one too). To stop the application and safely detach all the resources, \texttt{Crtl+C} command on the terminal and finally:
-\begin{lstlisting}[language=bash]
-  $ docker-compose down
-\end{lstlisting}
+
+  \texttt{\$ docker-compose down}
 
 \noindent The full screen video captioning of the example is available in the Assets of the releases page\footnote{\scriptsize{\url{https://github.com/nopesir/oauth-hw-security-custom/releases/download/v0.5-alpha/hw-security-custom-screen.mp4}}} or in the resources. 
 % ------ END OF SECTION A.2.2 ------
