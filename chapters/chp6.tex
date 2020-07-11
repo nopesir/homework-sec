@@ -29,7 +29,47 @@ In this section are analyzed the design and implementation of the two solutions 
 \subsection{\oauth\ with Google/Facebook}
 The \textit{server-side} is a Spring Boot application that uses \oauth\ by exploiting Spring Security in order to implement both social (Google/Facebook/GitHub) and email/password logins (with a MySQL database). On the other hand, the \textit{client-side} application is not strictly related to \oauth, but it is an example on how to use the information provided by the \oauth\ Spring Boot server to interact with an end-user (in this case, a React web application). Since the flow with some providers varies for what concerns payloads types and endpoints, of particular relevance are the official documentations from Facebook \cite{facebook} and Google \cite{google1, google2}. Furthermore, to implement the Spring Boot server, a good example can be found on the developer.okta.com's blog \cite{sprboot}. 
 
+The implemented flow's main actor is the Spring Boot server, that acts as a \oauth\ client. The objective of this implementation is to retrieve basic User information (name and email) from the Google account by using the \textit{Authorization Grant flow}. More in details, this is done through a React web-app that consumes the server's APIs. The first interaction (Fig.~\ref{fig:google1}) takes place as follows:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/images/chp6/flow_google1.png}
+    \caption{Implementation of the AuthZ Code Grant flow with Google. Part 1.}
+    \label{fig:google1}
+\end{figure}
+
+\begin{enumerate}
+    \item From the "Login" page, the user clicks on "Login With Google" and a first redirection starts on \url{http://localhost:8080/oauth2/authorize/google} with the requested params.
+    \item The server creates the state param, takes the info from the configuration and redirects the user to the Google \oauth\ page (\url{https://accounts.google.com/o/oauth2/v2/auth}).
+    \item Here the user logs in on Google and Accepts/Denies the AuthZs scopes. After the user acceptance, Google redirects it back on the server with the AuthZ Code.
+    \item The server checks that the state is the same and prepares a HTTP GET to the Google Token endpoint (this is done automatically by Spring Security, no action is required by the user).
+    \item Google checks code, secrets and gives a JWT access token and refresh token in a JSON object.
+    \item The server saves the token.
+\end{enumerate}
+
+The second interaction starts in order to let the server populate the database by consuming the received token and giving a local token to the React web-app in order to let the app access the stored information in the database (Fig.~\ref{fig:google2}):
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/images/chp6/flow_google2.png}
+    \caption{Implementation of the AuthZ Code Grant flow with Google. Part 2.}
+    \label{fig:google2}
+\end{figure}
+
+\begin{enumerate}
+    \item[7.] The server sends an HTTP GET to the Google endpoint \url{https://googleapis.com/oauth2/v2/userinfo} by inserting the \texttt{access\_token} in the authorization header. The Google API server checks the token and prepares the response as JSON.
+    \item[8.] The Spring server saves the access token and updates the information in the database. It creates a local JWT token to give it to the client app.
+    \item[9.] The React app saves the token  (that is not the \oauth\ token) into a cookie and uses it to get the user info from the endpoint of the Spring server \url{http://localhost:8080/user/me} by attaching the local token into the authorization header.
+    \item[10.] The server checks for the token and responds with the JSON of the logged user by formatting a JSON from the database info.
+    \item[11.] Finally, the React app displays the information of the logged user.
+\end{enumerate}
+
+After this introduction on the general flow, in the following subsections is presented a detailed explanation of the implementation, divided into the two modules that compose the architecture.
+
 \subsubsection{Client-side}
+As mentioned before, this application is pretty simple and it is only used as an interface between the \oauth\ Spring Boot back-end server and the user to display information. An alternative could be directly to implement into the Spring Boot back-end the web-server.
+
+\noindent To create the base React application, simply type:
 
 \begin{wrapfigure}[20]{r}{0.30\textwidth}
   \begin{center}
@@ -38,10 +78,6 @@ The \textit{server-side} is a Spring Boot application that uses \oauth\ by explo
   \caption{Final directory tree of the \texttt{react-social} app}
   \label{fig:dirtree}
 \end{wrapfigure}
-
-As mentioned before, this application is pretty simple and it is only used as an interface between the \oauth\ Spring Boot back-end server and the user to display information. An alternative could be directly to implement into the Spring Boot back-end the web-server.
-
-\noindent To create the base React application, simply type:
 
   \texttt{\$ npm install -g create-react-app}
   
@@ -167,15 +203,87 @@ For further information on Spring Security, see the documentation \cite{sprsec}.
 
 % ------ SECTION B.2.2 ------
 \subsection{\oauth\ with custom AuthZ/Resource servers}
-This second implementation example is required to better understand \oauth\ and his actors without the customization of providers like Google. It is possible to build an authorization server and a resource server using the \textit{Authorization Grant Flow} (\ref{authcg}). For this task, before consulting directly the \rfc{6749}, the developer.okta.com's article "What is the OAuth 2.0 Authorization Code Grant Type?" \cite{oauth2} is a good start. The demo is composed by three servers:
+This second implementation example is required to better understand \oauth\ and his actors without the customization of providers like Google. It is possible to build an authorization server and a resource server using the \textit{Authorization Grant Flow} (\ref{authcg}) and the \textit{Refresh Token Flow} (\ref{accref}). For this task, before consulting directly the \rfc{6749}, the developer.okta.com's article "What is the OAuth 2.0 Authorization Code Grant Type?" \cite{oauth2} is a good start. The demo is composed by three servers (actors):
 
 \begin{itemize}
-    \item \textit{Client-server}, that acts like the Spring Boot server in the previous example (the client of the \oauth\ protocol specification that is interested in accessing a resource), but without a React web app: it is used a classic routing website served directly from the server itself.
+    \item \textit{Client-server}, that acts like the Spring Boot server in the previous example (the client of the \oauth\ protocol specification that is interested in accessing a resource), but without a React web app: it is used a classic routing website served directly from the server itself. This actor is a web-server from the point of view of the user and a client from the \oauth\ protocol point of view.
     \item \textit{Authorization-server}, that provides endpoints for user authentication and authorization, token access and token refresh and so on.
     \item \textit{Resource-server}, that makes available resources by using the retrieved token from the authorization server.
 \end{itemize}
 
-There is the user too (the resource owner), that is responsible for grant/deny permissions to the client-server. All the software of this demo uses Maven for project management, dependencies and so on. Moreover, it is built on top of \texttt{Jakarta EE} \cite{jaksec} with \texttt{MicroProfile}, but more details are available in the dedicated subsections. 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.81\textwidth]{chapters/images/chp6/flow_access1.png}
+    \caption{Implementation of the AuthZ Code Grant flow.}
+    \label{fig:access1}
+\end{figure}
+
+There is the user too (the resource owner), that is responsible for grant/deny permissions to the client-server. All the software of this demo uses Maven for project management, dependencies and so on. Moreover, it is built on top of \texttt{Jakarta EE} \cite{jaksec} with \texttt{MicroProfile}, but more details are available in the dedicated subsections.
+
+The first implemented flow is the \textit{Authorization code grant} that has as objective the \texttt{access\_token} and \texttt{refresh\_token} retrieval, passing through the authorization code. The flow (Fig.~\ref{fig:access1}) starts with an user interaction (this is always true if no Refresh Token flow is implemented):
+
+\begin{enumerate}
+    \item User opens \url{http://localhost:9180} and clicks "Get Access Token".
+    \item User is redirected on \url{http://localhost:9180/authorize} (this starts the dedicated Servlet on the \textit{Client-server} module, more details will follow) and directly to the AuthZ Server on \url{http://localhost:9080/authorize} (see the figure for messages format and params).
+    \item The AuthZ Server checks the authentication of the user. If he is not authenticated, authenticates the user and finally is presented the web-page with the checkboxes of the authorization to be granted or not (\texttt{resource\_read} and \texttt{resource\_write}). 
+    \item The user gives the authorization for the two scopes (or a subset of them) and the AuthZ Server redirects the User to the \texttt{redirect\_uri} specified in step 2 with the \texttt{code} (AuthZ Code) and the \texttt{state} param for CSRF avoidance.The URI is \url{http://localhost:9180/callback}.
+    \item The \textit{Client-server} takes the AuthZ Code, checks that the state param is the same as the one sent before and prepares an HTTP POST to the AuthZ Token Endpoint (\url{172.28.1.2:9080/token}) without the user interaction by using the Docker LAN.
+    \item More in details, the HTTP POST is prepared by encoding the secrets in Base64url and adding the AuthZ Code, the redirection URI and the grant type as form items. There is no user interaction in this step. This step is started by the second Servlet.
+    \item The AuthZ Server decodes the authorization header and checks the credentials, takes the code and generates an access token and a refresh token as later described.
+    \item Furthermore, the AuthZ Server creates the JSON response by adding the signed and serialized JWT for access and for refresh, the expiration of the token (1800 seconds), the token type and the authorized scopes.
+    \item Finally, the \textit{Client-server} takes the signed serialized JTW from the \texttt{access\_token} variable of the JSON and using the public key it verifies the signature. The same applies for the \texttt{refresh\_token}. It stores the access and refresh token in order to request resources to the Resource Server. There is no user interaction.
+\end{enumerate}
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/images/chp6/flow_refresh1.png}
+    \caption{Implementation of the Refresh Token flow.}
+    \label{fig:refresh1}
+\end{figure}
+
+The second implemented flow is the Refresh Token flow that has as objective the \texttt{access\_token} and \texttt{refresh\_token} retrieval by consuming the \texttt{refresh\_token}. The flow presumes that the \textit{Client-server} has already performed the AuthZ Code Grant flow and has an access token (expired or not) and a refresh token (not expired). The initial interaction of the User to start the Refresh Token flow is a simple example, but the use of this flow is to avoid any user interaction after the successful outcome of a previous AuthZ Code Grant flow. For production environment, a trigger to start this flow could be the expiration of the access token. The steps (Fig.~\ref{fig:refresh1}) are the following:
+
+\begin{enumerate}
+    \item The User clicks on "Refresh token (original scope)" from the homepage (\url{http://localhost:9180}). This click triggers the third Servlet of the \textit{Client-server} module on \url{http://localhost:9180/refreshtoken}.
+    \item The \textit{Client-server} prepares the HTTP POST by adding in the authorization header the Base64url encoded string with \texttt{client\_id} and \texttt{client\_secret}. Furthermore, in the form it adds the \texttt{refresh\_token} and the \texttt{grant\_type} requested. The HTTP POST is done by using the Docker LAN on \url{172.28.1.2:9080/token}.
+    \item The AuthZ Server checks the authorization header and then the \texttt{grant\_type} so that it knows that the request is a \texttt{refresh\_token}. Retrieves the \texttt{refresh\_token}, verifies its validity and that it was issued for the same client. Finally it generates another \texttt{access\_token} and another \texttt{refresh\_token} for the same scopes.
+    \item As the AuthZ Code Grant flow, the server builds the JSON response and replies.
+    \item The \textit{Client-server} performs the checks for validity of the new two tokens and then refreshes the homepage for the User (note that this last step is not mandatory, is only for educational purposes, the user is not an active actor of the Refresh Token flow). At this point, the \textit{Client-server} can continue to use the new \texttt{access\_token}.
+\end{enumerate}
+
+I addition, it is possible to force the Refresh Token flow on a subset of the original granted scopes. For example, if the \textit{Client-server} has authorization for "resource.read" and "resource.write", there is the possibility to force only one of them during the token refresh flow by using from the homepage "Refresh token (scope: resource.read)" or "Refresh token (scope: resource.write)". 
+
+Taking as initial state the one with only "resource.read" authorized, if the User clicks on "Refresh token (scope: resource.write)" and the authorization that the \textit{Client-server} has is not a subset of the requested one, the AuthZ Server will respond with an error message. In Fig.~\ref{fig:refresh3} is showed the same Refresh Token flow forced on the scope "resource.write". 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/images/chp6/flow_refresh3.png}
+    \caption{Implementation of the forced Refresh Token flow on "resource.write" with the message differences highlighted and BAD REQUEST error returned.}
+    \label{fig:refresh3}
+\end{figure}
+
+Finally, once that the \textit{Client-server} has the \texttt{access\_token}, it can perform a resource request to the Resource server (Fig.~\ref{fig:resource}):
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.85\textwidth]{chapters/images/chp6/flow_resource.png}
+    \caption{Implementation of the Resource request flow.}
+    \label{fig:resource}
+\end{figure}
+
+\begin{enumerate}
+    \item The User is on the homepage with the tokens displayed on the page. It has only the "resource.read" scope authorized, it clicks on the link "Read Protected Resource" (\url{http:localhost:9180/downstream?action=read})
+    \item The action triggers the fourth and last Servlet of the \textit{Client-server}. It prepares an HTTP GET to \url{172.28.1.3:9280/api/resource/read} with the \texttt{access\_token} in the authorization header. There is no user interaction.
+    \item The Resource Server has the public key locally (it can be modified in order to request the public key from the AuthZ Server dedicated endpoint). It verifies the JWT sent by the Client and uses the "groups" Private Claim to map the Jakarta RR Roles on the resources. In this case, "resource.read" is the only group and, since the request is "resource read", the permission is granted. It prepares the response by adding a html-formatted string that greets the User.
+    \item The \textit{Client-server} receives the resource (in this cas an html document) and displays it into the browser to the User (or it can do something else with it).
+    \item If the User clicks on "Write Protected Resource", it would lead to a Forbidden access, since it has authorization only to "resource.read" and not "resource.write".
+    \item Forbidden access: once that the Resource Server has verified the JWT and has retrieved the "group" claim, the "resource.write" was not written in it.
+    \item The \textit{Client-server} receives and injects the error as html text into the browser to the User.
+\end{enumerate}
+
+After this introduction on the general flows, in the following subsections is presented a detailed explanation of the implementation, divided into the three servers that compose the architecture.
 
 \subsubsection{Client-server}
 This web-server implements four Servlets\footnote{Exploit dynamic web content with Java, "[..] class that is used to extend the capabilities of servers that host applications accessed employing a request-response programming model.". Source: \url{https://docs.oracle.com/javaee/5/tutorial/doc/bnafe.html}}:
@@ -198,9 +306,9 @@ This web-server implements four Servlets\footnote{Exploit dynamic web content wi
 
 \noindent It is important though to point out that the URIs are configured for the Docker virtualized network and they need to be changed to be run without Docker.
 
-The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is implemented in \textbf{AuthorizationCodeServlet.java} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \textcolor{blue}{\texttt{http://localhost:9180/callback?code=tughdj57gh5hfd\&state=57t7fdhgwejgu54h}} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
+The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is implemented in \textbf{AuthorizationCodeServlet.java} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \textcolor{blue}{\texttt{http://localhost:9180/callback?code=1\&state=tughdj57gh5h7t7fdhgwejgg}} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
 
-The second Servlet starts as soon as the AuthZ server redirects back to \texttt{/callback} with the AuthZ code and the \texttt{state} as parameters. The implementation is in \textbf{CallbackServlet.java}. First, it checks the \texttt{state} match and then it uses the received code to request an access token. In this case, there is no browser interaction, it is all implemented through HTTP POST and JAX RS Client: here the token endpoint requires the two secrets too in the \textit{Authentication} header, along with the code, the type of the code and the redirect URI. Now the client has the access token (and the refresh token too) and it can access information on the resource server by using the third Servlet implemented in \textbf{DownstreamCallServlet.java} waiting on \texttt{/downstram} with two actions passed as query params: \textit{read} or \textit{write}. Based on the action, the Servlet calls the resource server's APIs with the access token in the Authorization HTTP header and receives a string if it has access or an HTTP Forbidden error if it does not.
+The second Servlet starts as soon as the AuthZ server redirects back to \texttt{/callback} with the AuthZ code and the \texttt{state} as parameters (is the only Servlet not triggered by the user in this implementation). The implementation is in \textbf{CallbackServlet.java}. First, it checks the \texttt{state} match and then it uses the received code to request an access token. In this case, there is no browser interaction, it is all implemented through HTTP POST and JAX RS Client: here the token endpoint requires the two secrets too in the \textit{Authentication} header, along with the code, the type of the code and the redirect URI. Now the client has the access token (and the refresh token too) and it can access information on the resource server by using the third Servlet implemented in \textbf{DownstreamCallServlet.java} waiting on \texttt{/downstram} with two actions passed as query params: \textit{read} or \textit{write}. Based on the action, the Servlet calls the resource server's APIs with the access token in the Authorization HTTP header and receives a string if it has access or an HTTP Forbidden error if it does not.
 
 The last Servlet is used to obtain a new access token starting from the refresh token. This is useful because it does not require the user to repeat all the flow. The Servlet is ready to start at \texttt{/refreshtoken} and, similarly to the code in \textbf{CallbackServlet.java}, it uses only JAX RS Client and HTTP POST to build the request, that has the refresh token, the scopes and as grant type \texttt{refresh\_token}. The Authentication header with the encoded secrets is added too. The request is posted on the same token endpoint of the AuthZ server, but the AuthZ server will know what to do because of the \texttt{grant\_type} param. If the response is 200 HTTP, the new access token and the new refresh token are stored and they can be used for the next calls.
 
