@@ -93,12 +93,6 @@ In \textit{\oauth} two types of token are distinguished.
 
 \textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers).
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{chapters/images/chp2/refresh_token_general.png}
-    \caption{Refresh token flow}
-    \label{fig:refreshtok}
-\end{figure}
 % ------ END OF SECTION 2.2.1 ------
 
 % ------ SECTION 2.2.2 ------
@@ -110,7 +104,7 @@ The \textbf{token endpoint} has the role of waiting for the client in order to r
 
 % ------ SECTION 2.3 ------
 \section{Client-side flow (untrusted)}
-So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In this flow, the User-agent is the main actor: it interacts directly with both the User (Resource Owner) and the Client web-app (that is running on it) while sending the necessary messages. In the Fig.~\ref{fig:flowa} is shown a general schema of the flow. The steps follows:
+The Implicit Grant flow is optimized for scripting language based clients. As a result of the Resource Owner authorization, the Client is issued an access token directly without issuing an authorization code. This flow is defined in Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In this flow, the User-agent is the main actor: it interacts directly with both the User (Resource Owner) and the Client web-app (that is running on it) while sending the necessary messages. In the Fig.~\ref{fig:flowa} is shown a general schema of the flow. The steps follows:
 
 \begin{enumerate}
     \item The User-agent receives the parameters from the Client and redirects the User on the AuthZ Server endpoint with them. The User authenticates and decides whether or not to authorize the Client.
@@ -286,17 +280,19 @@ When the provider grants the access request, according to the specification it s
 \section{Server-side flow (trusted)}
 \label{authcg}
 
-The AuthZ code grant is used to retrieve access tokens and (OPTIONAL) refresh tokens and it is built for client confidentiality. The AuthZ code is delivered by using an AuthZ server as a broker between client and resource owner. The server authenticates the owner of the resources and obtains authorization before directing it back to the client with the AuthZ code. This flow is described in Section 4.1 of the \rfc{6749}\ \cite{RFC6749}. It is important to point out that, for this flow, the resource owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). In Fig.~\ref{fig:serverflow} it is provided a detailed description of this flow:
+The AuthZ Code Grant is the most used Grant Type and it is built for Client confidentiality thanks to the \textit{trusted} capability of a web-server that implements it. The AuthZ Code is delivered by using an AuthZ Server as a broker between Client and Resource Owner. The server authenticates the Resource Owner and obtains authorization before redirecting it back to the Client with the AuthZ Code. This flow is described in Section 4.1 of the \rfc{6749}\ \cite{RFC6749}. It is important to point out that, for this flow, the Resource Owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). Moreover, this flow enables the Refresh Token flow that can be used to update the Access Token when it expires, without the Resource Owner intervention. In Fig.~\ref{fig:serverflow} is provided a general description of this flow:
 
-\begin{itemize}
-    \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
-    \item[(B)]The authentication server of the service provider authenticates the resource owner and attempts to gain consent by presenting the user consent form.
-    \item[(C)] The AuthZ server redirects the user back to the client application via the redirection endpoint provided in the authorization request (after that the user has given consent). The redirection endpoint's URI will include the Authz code and the state provided by the client.
-    \item[(D)]Using the retrieved authorization token, the client requests the access token from the appropriate endpoint. Simultaneously, the client also has to authenticate using its credentials in the same request.
-    \item[(E)] The service provider checks for the authentication, authorization and the redirection URI of step (C). Finally, in case of positive acknowledgement, an access token is issued (possibly, a refresh token too, depending on the server implementation).
-\end{itemize}
+\begin{enumerate}
+    \item 
+    
+    \item 
+    
+    \item 
+    
+    \item 
+\end{enumerate}
 
-It must be noticed that, with respect to the implicit grant flow, in addition to the steps (A) and (B), now step (C) too is divided because it passes through the \textit{user-agent}.
+
 
 \begin{figure}[htbp]
     \centering
@@ -306,11 +302,6 @@ It must be noticed that, with respect to the implicit grant flow, in addition to
 \end{figure}
 
 % ------ SECTION 2.4.1 ------
-\subsection{Refresh Token Flow}
-
-% ------ END OF SECTION 2.4.1 ------
-
-% ------ SECTION 2.4.2 ------
 \subsection{Analysis of exchanged messages}
 The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant flow, two more messages that precede the token request and response are added: the \textbf{authorization request} and the \textbf{authorization response}. Furthermore, it must be implemented the \textit{token refresh} usage (that still it is not always returned by the authorization server). However, here every message must be encoded according to the specification into the URI too using the \textit{application/x-www-form-urlencoded} format.
 
@@ -401,6 +392,27 @@ For a \textbf{success} response it is sent back a message with the following par
 
 \hspace{0.5cm}OPTIONAL. If they are the same requested by the client.
 
+% ------ END OF SECTION 2.4.1 ------
+
+% ------ SECTION 2.4.2 ------
+\subsection{Refresh Token Flow}
+Fig.~\ref{fig:refreshtok}
+\begin{enumerate}
+    \item 
+    \item 
+    \item 
+    \item 
+    \item 
+    \item 
+    \item 
+\end{enumerate}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{chapters/images/chp2/refresh_token_general.png}
+    \caption{Refresh token flow}
+    \label{fig:refreshtok}
+\end{figure}
 % ------ END OF SECTION 2.4.2 ------
 % ------ END OF SECTION 2.4 ------
 
