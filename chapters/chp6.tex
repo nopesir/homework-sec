@@ -5,8 +5,6 @@
 This appendix explains how the two implementations are designed. In particular, there is a first section about the frameworks and the libraries used, followed by the implementation itself (with code explanations, problems, resolutions, endpoints and messages exchanged in practice) for both the examples. Finally, the last section is devoted to the compilation and dockerization of the solutions.
 % ------ END OF APPENDIX INTRO ------
 
-\minitoc
-
 % ------ SECTION B.1 ------
 \section{Frameworks, libraries and environment}
 For what concerns the second demo and the server of the first demo, it has been used Apache Maven as build automation tool and the only requirement is Java JDK8 installed. Moreover, since Maven is integrated into the project (by using maven-wrapper), there is no need to install it on the machine.
@@ -29,7 +27,7 @@ In this section are analyzed the design and implementation of the two solutions 
 \subsection{\oauth\ with Google/Facebook}
 The \textit{server-side} is a Spring Boot application that uses \oauth\ by exploiting Spring Security in order to implement both social (Google/Facebook/GitHub) and email/password logins (with a MySQL database). On the other hand, the \textit{client-side} application is not strictly related to \oauth, but it is an example on how to use the information provided by the \oauth\ Spring Boot server to interact with an end-user (in this case, a React web application). Since the flow with some providers varies for what concerns payloads types and endpoints, of particular relevance are the official documentations from Facebook \cite{facebook} and Google \cite{google1, google2}. Furthermore, to implement the Spring Boot server, a good example can be found on the developer.okta.com's blog \cite{sprboot}. 
 
-The implemented flow's main actor is the Spring Boot server, that acts as a \oauth\ client. The objective of this implementation is to retrieve basic User information (name and email) from the Google account by using the \textit{Authorization Grant flow}. More in details, this is done through a React web-app that consumes the server's APIs. The first interaction (Fig.~\ref{fig:google1}) takes place as follows:
+The implemented flow's main actor is the Spring Boot server, that acts as a \oauth\ client. The objective of this implementation is to retrieve basic User information (name and email) from the Google account by using the \textit{Authorization Grant flow}. More in details, this is done through a React web-app that consumes the server's APIs. The first interaction takes place as follows (for more details on the messages exchanged, see Fig.~\ref{fig:google1}):
 
 \begin{figure}[h]
     \centering
@@ -69,8 +67,6 @@ After this introduction on the general flow, in the following subsections is pre
 \subsubsection{Client-side}
 As mentioned before, this application is pretty simple and it is only used as an interface between the \oauth\ Spring Boot back-end server and the user to display information. An alternative could be directly to implement into the Spring Boot back-end the web-server.
 
-\noindent To create the base React application, simply type:
-
 \begin{wrapfigure}[20]{r}{0.30\textwidth}
   \begin{center}
     \includegraphics[width=0.30 \textwidth]{chapters/images/chp6/dirreact.jpg}
@@ -78,6 +74,8 @@ As mentioned before, this application is pretty simple and it is only used as an
   \caption{Final directory tree of the \texttt{react-social} app}
   \label{fig:dirtree}
 \end{wrapfigure}
+
+\noindent To create the base React application, simply type:
 
   \texttt{\$ npm install -g create-react-app}
   

@@ -2,18 +2,14 @@
 
 \chapter{Introduction and state-of-the-art}
 % ------ CHAPTER INTRO ------
-This chapter introduces the motivations and explains some keywords as prerequisites for better understand the \textit{Open Authorization} protocol. In particular, it is presented some history behind \textit{OAuth} with emphasis on the problems that this protocol solves. In the end, the focus will be on authentication, authorization, federated identity and delegated authority.
+The present work aims at implementing a working demo complete solution that demonstrates the \oauth\ functionalities by analyzing all the specification peculiarities, the security risks and its design downsides. This first chapter introduces the protocol and explains some keywords as prerequisites for better understand the \textit{\oauth} protocol. In particular, the focus will be on authentication, authorization, federated identity and delegated authority.
 % ------ END OF CHAPTER INTRO ------
-
-\minitoc
 
 % ------ SECTION 1.1 ------
 \section{Motivations behind OAuth2}
 Open Authorization, more commonly called OAuth, is an open communication protocol through which an application (or a web service) can safely manage authorized access to sensitive data. The protocol is compatible with any type of application: desktop, web and mobile.
 
-The OAuth protocol was conceived by Blaine Cook in 2006 while working on the Twitter implementation of OpenID, offering it as an open alternative to the many existing proprietary protocols, such as Google AuthSub, AOL OpenAuth, Yahoo BBAuth, Flickr API and many others. Since version 1.0 (published in 2007), \oauth\ has undergone several revisions, gradually incorporating the Requests For Comments (RFCs) proposed by the various experts. Following this procedure, the final specification was published some years ago. The different main service providers, such as social networks, Facebook, Twitter, LinkedIn and many others, have already announced support even before the first draft was officially published.
-
-From a high level point of view, \textit{\oauth} allows two parties to exchange securely and reliably sensitive information exploiting the concepts of \textit{federated identity} and \textit{delegated authority}. For example, some real-life scenarios could be:
+From a high level point of view, \textit{\oauth} allows two parties to exchange securely and reliably sensitive information exploiting the concepts of \textit{federated identity} and \textit{delegated authority}. For this For example, some real-life scenarios could be:
 
 \begin{itemize}
     \item StackOverflow allowing you to log in with your Google account
@@ -21,7 +17,7 @@ From a high level point of view, \textit{\oauth} allows two parties to exchange 
     \item LinkedIn suggesting contacts for you to add by looking at your Google contacts
 \end{itemize}
 
-In a few words, this protocol allows the creation of powerful applications that can all integrate with each other exchanging securely data and information.
+This protocol allows the creation of powerful applications that can all integrate with each other exchanging securely data and information.
 % ------ END SECTION 1.1 ------
 
 % ------ SECTION 1.2 ------
@@ -29,7 +25,7 @@ In a few words, this protocol allows the creation of powerful applications that 
 An essential prerequisite in order to understand \oauth\ is the difference between \textit{authentication} and \textit{authorization}. This two terms might seem quite similar and sometimes they are interchanged, but actually they represent something totally different.
 
 \textbf{Authentication} is the process of validating whether an actor (a person or a system) is really who it says it is or not.
-As a real-life analogy, it could be useful to picture it as the act of showing the personal driver license to someone who wants to verify someone's identity (maybe when someone wants to access to sensitive documents at the bank teller). 
+As a real-life analogy, it could be useful to picture it as the act of showing the personal driver license to someone who wants to verify someone's identity (maybe when trying to access sensitive documents at the bank teller). 
 This action could be recognized when the actor gives username and password to be \textit{authenticated} and retrieve a protected file or profile.
 
 \textbf{Authorization} instead, is the process of determining what actions someone can or cannot do once it is authenticated.
@@ -49,7 +45,7 @@ In other words, the \textit{Open Authorization} framework could provide both fed
 % ------ END OF SECTION 1.3 ------
 
 % ------ SECTION 1.4 ------
-\section{\oauth\ roles}
+\section{\oauth\ actors}
 The protocol has practically become the industry-standard one for authorization. In other words, Google provides a multitude of services while Facebook's social graph allows many actions (including posting to wall and sending messages). And then Instagram, Twitter, Spotify, now even Amazon. Moreover, it can be built a custom provider to use \oauth\ not as a social application (without Google and the others).
 
 For what concerns the roles, there are in general four principal actors, described as follows:

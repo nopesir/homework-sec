@@ -5,7 +5,6 @@
 After the first brief introduction, in this chapter the protocol will be described in detail, showing the so called different \textit{flows} of it, analyzing the exchanged messages, endpoints, tokens management, authorization and finally giving a smattering in mobile applications.
 % ------ END OF CHAPTER INTRO ------
 
-\minitoc
 
 % ------ SECTION 2.1 ------
 \section{Introduction to the flows}\label{section22}
@@ -92,12 +91,12 @@ In \textit{\oauth} two types of token are distinguished.
 
 \textbf{Access token}, that is a very long string that represents the authorization given to the client.
 
-\textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers). In Fig.~\ref{fig:refreshtok} we can see an example of how the refresh token is used when the access one expires.
+\textbf{Refresh token}, a particular family of tokens used to retrieve a new access token when the current one becomes invalid or expires. They are different from the classic ones because intended to be consumed only with \textit{AuthZ} servers (not resource servers).
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{chapters/images/chp2/tokenref.jpg}
-    \caption{\rfc{6749} refresh token usage}
+    \includegraphics[width=\textwidth]{chapters/images/chp2/refresh_token_general.png}
+    \caption{Refresh token flow}
     \label{fig:refreshtok}
 \end{figure}
 % ------ END OF SECTION 2.2.1 ------
@@ -111,24 +110,26 @@ The \textbf{token endpoint} has the role of waiting for the client in order to r
 
 % ------ SECTION 2.3 ------
 \section{Client-side flow (untrusted)}
-So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in the Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In the Fig.~\ref{fig:flowa} we can see the schema in detail. The steps from the specification are as follows:
+So far, the implicit grant flow is optimized for scripting language based clients. As a result of the resource owner authorization, the client is issued an access token directly without issuing an authorization code. This flow is defined in Section 4.2 of the \rfc{6749}\ \cite{RFC6749}. It is important to say that, when using this flow, the authorization server does not authenticate the client (in some cases this could be done via the redirection URI). In this flow, the User-agent is the main actor: it interacts directly with both the User (Resource Owner) and the Client web-app (that is running on it) while sending the necessary messages. In the Fig.~\ref{fig:flowa} is shown a general schema of the flow. The steps follows:
 
-\begin{itemize}
-    \item[(A)]The client application initiates the flow by sending the user's user-agent to the appropriate authorization endpoint.
-    \item[(B)]The authorization server of the service provider authenticates the resource owner and attempts to gain consent by presenting the user consent form.
-    \item[(C)]If the user accepts consent, the AuthZ server redirects it to the client application using the redirection endpoint retrieved from the authorization request, including the access token in the URI.
-    \item[(D)]The user-agent proceeds with the redirection, stripping the fragment and retaining the properties locally.
-    \item[(E)]The client serves a web page that is capable of parsing the fragment and extracting the access token.
-    \item[(F)]The user-agent extracts the access token using a script provided by the server.
-    \item[(G)] At the end, the client will have the access token.
-\end{itemize}
+\begin{enumerate}
+    \item The User-agent receives the parameters from the Client and redirects the User on the AuthZ Server endpoint with them. The User authenticates and decides whether or not to authorize the Client.
+    
+    \item If the User authorize it, the AuthZ Server redirects the User back to the redirection URI specified at step 1. The access token is in the URI fragment.
+    
+    \item The User-agent uses the redirection URI without any URI fragments (the one received with the token is saved locally) to some cloud or local resource of the Client.
+    
+    \item The returned resource is often a HTML page with an embedded JavaScript code.
+    
+    \item The User-agent presents the HTML page and runs the embedded script (capable of extracting the access token from the saved URI fragment), delivering the access token to the Client. 
+\end{enumerate}
 
-It must be noticed that (A) and (B) are split into two parts because they both pass through the \textit{user-agent}.
+The Implicit Grant flow is much faster and simpler than any other Grant Type and it is well suited for a simple web-app without any back-end server. This flexibility comes with many security issues, starting from the public availability of the access token, that is locally available in the User-agent and it can be extracted by any dangerous script.
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[scale=0.6]{chapters/images/chp2/client.jpg}
-    \caption{\rfc{6749}\ implicit grant flow}
+    \includegraphics[width=0.9\textwidth]{chapters/images/chp2/implicit_flow_general.png}
+    \caption{Implicit Grant flow}
     \label{fig:flowa}
 \end{figure}
 
@@ -136,11 +137,12 @@ It must be noticed that (A) and (B) are split into two parts because they both p
 
 % ------ SECTION 2.3.1 ------
 \subsection{Analysis of exchanged messages}
-At this point, it is clear that for what concerns the client-side implicit grant type we have only an \textbf{authorization request} and an \textbf{access token response}. Both of them must be encoded accordingly to the specification into the endpoint URI in the \textit{application/x-www-form-urlencoded} format.
+At this point, it is clear that for what concerns the Implicit Grant flow we have only an \textbf{authorization request} and an \textbf{access token response}. Both of them must be encoded accordingly to the specification into the endpoint URI in the \textit{application/x-www-form-urlencoded} format.
 
 \subsubsection{Authorization request}
 \label{authreq}
-The client MUST build this request using these parameters into the URI:
+With respect to Fig.~\ref{fig:flowa}, the authorization request is done in step 1.
+The client MUST build this request using these parameters into the URI fragment:
 
 \texttt{response\_type}
 
@@ -154,9 +156,9 @@ The client MUST build this request using these parameters into the URI:
 
 \hspace{0.5cm}OPTIONAL. This value could be set with the URI of the redirection endpoint used by 
 
-\hspace{0.5cm}the service provider to return the response, whether that is an access token in the case of
+\hspace{0.5cm}the service provider to return the response, whether that is an access token in 
 
-\hspace{0.5cm} a successful request, or an error message in the case of a failed request.
+\hspace{0.5cm}the case of a successful request, or an error message in the case of a failed request.
 
 \texttt{scope}
 
@@ -166,12 +168,25 @@ The client MUST build this request using these parameters into the URI:
 
 \texttt{state}
 
-\hspace{0.5cm}RECOMMENDED. String issued by the client in order to maintain a state with the response.
+\hspace{0.5cm}RECOMMENDED. String issued by the client in order to maintain a state with
 
-\hspace{0.5cm}Value used by the AuthZ server to redirect the user-agent back to the client.
+\hspace{0.5cm}the response. Value used by the AuthZ server to redirect the user-agent back to
 
-\hspace{0.5cm}As it will be shown in the following chapters, the param should be used to avoid CSRF\footnote{Cross-site request forgery, "[...] when a malicious program causes a user's web browser to perform an unwanted action on a trusted site on which the user is currently authenticated.". Source: \url{https://auth0.com/docs/protocols/oauth2/mitigate-csrf-attacks}}.
+\hspace{0.5cm}the client.As it will be shown in the following chapters, the param should be
 
+\hspace{0.5cm}used to avoid CSRF\footnote{Cross-site request forgery, "[...] when a malicious program causes a user's web browser to perform an unwanted action on a trusted site on which the user is currently authenticated.". Source: \url{https://auth0.com/docs/protocols/oauth2/mitigate-csrf-attacks}}.
+
+\noindent An example of valid authorization request is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  GET /authorize?
+    response_type=token&
+    client_id=[client_id]&
+    redirect_uri=[redirect_uri]&
+    scope=[scope]&
+    state=[state] HTTP/1.1
+  Host: server.example.com
+\end{lstlisting}
 \subsubsection{Error response}
 \label{tokenerr}
 For many reasons could happen that the request is not accepted by the resource owner. In this case, an error message is built with those parameters in the fragment of the URI of redirection:
@@ -204,8 +219,23 @@ For many reasons could happen that the request is not accepted by the resource o
 
 \hspace{0.5cm}REQUIRED. If a state parameter was present in the request.
 
+\vspace{1cm}
+
+\noindent An example of an error response is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  HTTP/1.1 302 Found
+    Location: [redirect_uri]#
+    error=[error_code]&
+    error_description=[error_description]&
+    error_uri=[error_uri]&
+    state=[state]
+\end{lstlisting}
+
+\noindent It is important to notice the HTTP 302 Found that redirects to the \texttt{Location} header value. In Fig.~\ref{fig:flowa}, this error response is in step 2.
+
 \subsubsection{Access token response}
-When the provider (e.g. Facebook) grants the access request, according to the specification it sends a positive response adding to the fragment component of the redirection URI in the \textit{application/x-www-form-urlencoded} format the following parameters:
+When the provider grants the access request, according to the specification it sends a positive response adding to the fragment component of the redirection URI in the \textit{application/x-www-form-urlencoded} format the following parameters:
 
 \texttt{access\_token}
 
@@ -221,7 +251,9 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 
 \texttt{expires\_in}
 
-\hspace{0.5cm}RECOMMENDED. The lifetime of the token in seconds. It could not be returned by the server.
+\hspace{0.5cm}RECOMMENDED. The lifetime of the token in seconds. It could not be
+
+\hspace{0.5cm}returned by the server.
 
 \texttt{scope}
 
@@ -232,6 +264,21 @@ When the provider (e.g. Facebook) grants the access request, according to the sp
 \texttt{state}
 
 \hspace{0.5cm}REQUIRED. If a state parameter was present in the request.
+
+\noindent An example of an access token response is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  HTTP/1.1 302 Found
+    Location: [redirect_uri]#
+    access_token=[access_token]&
+    token_type=[token_type]&
+    expires_in=[expires_in]&
+    scope=[scope]&
+    state=[state]
+\end{lstlisting}
+
+\noindent Here too, the HTTP 302 Found redirects to the \texttt{Location} header value without the access token information. As the error response, in Fig.~\ref{fig:flowa} this response is in step 2.
+
 % ------ END OF SECTION 2.3.1 ------
 % ------ END OF SECTION 2.3 ------
 
@@ -253,14 +300,17 @@ It must be noticed that, with respect to the implicit grant flow, in addition to
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[scale=0.7]{chapters/images/chp2/server.jpg}
-    \caption{\rfc{6749}\ authorization code grant}
+    \includegraphics[width=0.9\textwidth]{chapters/images/chp2/server_flow_general.png}
+    \caption{Authorization Code Grant flow}
     \label{fig:serverflow}
 \end{figure}
 
-\vspace{1cm}
-
 % ------ SECTION 2.4.1 ------
+\subsection{Refresh Token Flow}
+
+% ------ END OF SECTION 2.4.1 ------
+
+% ------ SECTION 2.4.2 ------
 \subsection{Analysis of exchanged messages}
 The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant flow, two more messages that precede the token request and response are added: the \textbf{authorization request} and the \textbf{authorization response}. Furthermore, it must be implemented the \textit{token refresh} usage (that still it is not always returned by the authorization server). However, here every message must be encoded according to the specification into the URI too using the \textit{application/x-www-form-urlencoded} format.
 
@@ -351,7 +401,7 @@ For a \textbf{success} response it is sent back a message with the following par
 
 \hspace{0.5cm}OPTIONAL. If they are the same requested by the client.
 
-% ------ END OF SECTION 2.4.1 ------
+% ------ END OF SECTION 2.4.2 ------
 % ------ END OF SECTION 2.4 ------
 
 % ------ SECTION 2.5 ------
