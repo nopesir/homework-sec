@@ -181,6 +181,7 @@ The client MUST build this request using these parameters into the URI fragment:
     state=[state] HTTP/1.1
   Host: server.example.com
 \end{lstlisting}
+
 \subsubsection{Error response}
 \label{tokenerr}
 For many reasons could happen that the request is not accepted by the resource owner. In this case, an error message is built with those parameters in the fragment of the URI of redirection:
@@ -283,16 +284,14 @@ When the provider grants the access request, according to the specification it s
 The AuthZ Code Grant is the most used Grant Type and it is built for Client confidentiality thanks to the \textit{trusted} capability of a web-server that implements it. The AuthZ Code is delivered by using an AuthZ Server as a broker between Client and Resource Owner. The server authenticates the Resource Owner and obtains authorization before redirecting it back to the Client with the AuthZ Code. This flow is described in Section 4.1 of the \rfc{6749}\ \cite{RFC6749}. It is important to point out that, for this flow, the Resource Owner only authenticates with the authorization server, providing a few important security benefits that will be discussed later on (e.g. client authentication and secure transmission). Moreover, this flow enables the Refresh Token flow that can be used to update the Access Token when it expires, without the Resource Owner intervention. In Fig.~\ref{fig:serverflow} is provided a general description of this flow:
 
 \begin{enumerate}
-    \item 
+    \item The flow starts with the Client that builds the URI with the necessary params and redirects the User on the AuthZ Server dedicted endpoint. Here the User logs in and accepts/denies to give authorization to the Client. 
     
-    \item 
+    \item If the User accepts, the AuthZ Server redirects the User back to the Client with an AuthZ Code.
     
-    \item 
+    \item Without the User intervention, the Client requests the access token by sending the token request with the AuthZ Code to the AuthZ Server.
     
-    \item 
+    \item The AuthZ Server sends the access token, and optionally the refresh token. Now the Client can use the access token for accessing resources on a dedicated Resource Server.
 \end{enumerate}
-
-
 
 \begin{figure}[htbp]
     \centering
@@ -301,15 +300,30 @@ The AuthZ Code Grant is the most used Grant Type and it is built for Client conf
     \label{fig:serverflow}
 \end{figure}
 
+With the AuthZ Code Grant flow, since the Client is a \textit{trusted} application capable of storing and transmitting the token securely, some security issues of the Implicit Grant flow disappear. So, naturally, this Client confidentiality comes at a price: complexity. There are twice as much messages exchanged with respect to the Implicit Grant flow, much more libraries to integrate in the code and more parameters to manage. Nevertheless, this is the recommended flow and other flows must be used only in particular cases.
+
+
 % ------ SECTION 2.4.1 ------
 \subsection{Analysis of exchanged messages}
-The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant flow, two more messages that precede the token request and response are added: the \textbf{authorization request} and the \textbf{authorization response}. Furthermore, it must be implemented the \textit{token refresh} usage (that still it is not always returned by the authorization server). However, here every message must be encoded according to the specification into the URI too using the \textit{application/x-www-form-urlencoded} format.
+The exchanged messages flow is more complex now. Throughout the AuthZ Code Grant flow, two more messages that precede the token request and response are added: the \textbf{authorization request} and the \textbf{authorization response}. Furthermore, it is suggested the Token Refresh flow use. However, every message must be encoded according to the specification into the URI too using the \textit{application/x-www-form-urlencoded} format.
 
 \subsubsection{Authorization request}
-According to the specification, this request is the one to gain consent from the user. This message is nearly identical to the authorization request we made in the previous section for the implicit grant flow (\ref{authreq}), except for one important difference: the value of the \texttt{response\_type} parameter MUST be set to \textit{code} instead of \textit{token}.
+According to the specification, this request is the one to gain consent from the user. This message is nearly identical to the authorization request made in the previous section for the implicit grant flow (\ref{authreq}), except for one important difference: the value of the \texttt{response\_type} parameter MUST be set to \textit{code} instead of \textit{token}.
+
+\noindent This message, with respect to the Fig.~\ref{fig:serverflow}, is exchanged during step 1. An example of valid authorization request is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  GET /authorize?
+    response_type=code&
+    client_id=[client_id]&
+    redirect_uri=[redirect_uri]&
+    scope=[scope]&
+    state=[state] HTTP/1.1
+  Host: server.example.com
+\end{lstlisting}
 
 \subsubsection{Authorization response}
-If the request URL is correctly formatted and constructed, the resource owner will send back a response. If the response will be positive, an authorization code is sent in order to be afterwards converted in an access token.
+If the request URL is correctly formatted and constructed, the AuthZ Server will send back a response. If the response will be positive, an authorization code is sent in order to be afterwards converted in an access token.
 The possible parameters that can be expected in the preceding response are now in the query component and not in the fragment one:
 
 \texttt{code}
@@ -322,7 +336,29 @@ The possible parameters that can be expected in the preceding response are now i
 
 \vspace{0.5cm}
 
-On the other hand, if the response will be negative, the error will be structured as in the implicit grant flow (same properties as in \ref{tokenerr}). The difference relies only in the fact that it is returned in the query component instead of the fragment one.
+\noindent This message, with respect to the Fig.~\ref{fig:serverflow}, is exchanged during step 2. An example of valid authorization resposte is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  HTTP/1.1 302 Found
+    Location: [redirect_uri]?
+    code=[authorization_code]&
+    state=[state]
+\end{lstlisting}
+
+\vspace{0.5cm}
+
+On the other hand, if the response will be negative, the error will be built as in the Implicit Grant flow (same properties as in \ref{tokenerr}). The difference relies only in the fact that it is returned in the query component instead of the fragment one.
+
+\noindent This message, with respect to the Fig.~\ref{fig:serverflow}, is exchanged during step 2. An example of valid authorization error response is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  HTTP/1.1 302 Found
+    Location: [redirect_uri]?
+    error=[error_code]&
+    error_description=[error_description]&
+    error_uri=[error_uri]&
+    state=[state]
+\end{lstlisting}
 
 \subsubsection{Token request}
 Once that the authorization code has been retrieved, it can be used to exchange an access token. With this objective, the client makes a request by using a \textit{POST}, specifying in the body section the following parameters:
@@ -347,7 +383,21 @@ Once that the authorization code has been retrieved, it can be used to exchange 
 
 \vspace{0.5cm}
 
-Additionally,in order to pass these parameters to the access token request, the client
+\noindent This message, with respect to the Fig.~\ref{fig:serverflow}, is exchanged during step 3. An example of valid token request is:
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  POST /token HTTP/1.1
+  Host: server.example.com
+  Authorization: Basic [base64url_encoded_client_credentials]
+  Content-Type: application/x-www-form-urlencoded
+
+  grant_type=authorization_code&
+    code=[authorization_code]&
+    redirect_uri=[redirect_uri]&
+    client_id=[client_id]
+\end{lstlisting}
+
+Additionally, in order to pass these parameters to the access token request, the client
 application must also identify itself with the service provider. This is an added
 layer of security (only necessary for trusted clients) and it is known as \textit{client
 authentication}.
@@ -355,7 +405,7 @@ It entails the secure transmission of the client credentials to the service prov
 In other words, it is the Base64-encoded value of the client credentials in
 the form:
 
-\hspace{0.5cm}\texttt{[CLIENT\_ID]:[CLIENT\_SECRET]}
+    \texttt{BASE64URL([CLIENT\_ID]:[CLIENT\_SECRET])}
 
 \subsubsection{Token response}
 As it has been encountered in the previous responses, if the authorization code is valid, we will get our token or an error otherwise. Depending on the implemented server, we could possibly get an optional refresh token (\ref{accref}) in order to update our expired token without doing all the previous steps.
@@ -392,11 +442,32 @@ For a \textbf{success} response it is sent back a message with the following par
 
 \hspace{0.5cm}OPTIONAL. If they are the same requested by the client.
 
+\vspace{0.5cm}
+
+\noindent This message, with respect to the Fig.~\ref{fig:serverflow}, is exchanged during step 4. An example of valid token response is:
+
+
+\begin{lstlisting}[basicstyle=\ttfamily]
+  HTTP/1.1 200 OK
+  Content-Type: application/json;charset=UTF-8
+  Cache-Control: no-store
+  Pragma: no-cache
+  {
+    "access_token":"2YotnFZFEjr1zCsicMWpAA",
+    "token_type":"bearer",
+    "expires_in":3600,
+    "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA",
+  }
+\end{lstlisting}
+
+The specification does not provide any information about the type of token, that is why it can be a generic string. Nevertheless, JSON Web Token (JWT) [\rfc{7519}] \cite{RFC7519} is one of the most used. 
+
 % ------ END OF SECTION 2.4.1 ------
 
 % ------ SECTION 2.4.2 ------
 \subsection{Refresh Token Flow}
-Fig.~\ref{fig:refreshtok}
+The AuthZ Code Grant flow SHOULD implement the Refresh Token flow. By using the refresh token, the Client (with the AuthZ Server) reduces the User interactions requested by the flow itself:  when the access token expires, the Resource Owner must actively participate to the Code Grant by manually accepting all the authorization requests again and again. In order to avoid this, the refresh token allows to be exchanged with a new access token for the original authorization scopes, reducing the active User interaction only when new authorization scopes are requested. In Fig.~\ref{fig:refreshtok} is shown a the basic flow:
+
 \begin{enumerate}
     \item 
     \item 
