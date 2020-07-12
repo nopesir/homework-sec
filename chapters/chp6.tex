@@ -293,7 +293,7 @@ This web-server implements four Servlets\footnote{Exploit dynamic web content wi
     \item Request the resource from the resource server's endpoint by consuming the access token.
 \end{itemize}
 
-\noindent Moreover, it uses MicroProfile Config for configuration files injection and JAX RS Client for accessing web resources. For simplicity, the \texttt{client\_id} and \texttt{client\_secret} are manually defined in the authorization server as it will be explained in the next subsection. This means that our client must have securely stored the two secrets that, for this demo, are only one pair (since the client is only one). In the configuration file stored in \texttt{META-INF/microprofile-config.properties} (it must be noted that it applies the same \texttt{.template} design, as explained in the first demo), apart from the secrets, other important variables are:
+\noindent Moreover, it uses MicroProfile Config for configuration files injection and JAX RS Client for accessing web resources. For simplicity, the \texttt{client\_id} and \texttt{client\_secret} are manually defined in the authorization server as it will be explained in the next subsection. This means that our client must have securely stored the two secrets that, for this demo, are only one pair (since the client is only one). In the configuration file stored in \texttt{META-INF/microprofile-config.proper-\\ties} (it must be noted that it applies the same \texttt{.template} design, as explained in the first demo), apart from the secrets, other important variables are:
 
 \begin{itemize}
     \item \texttt{redirect\_uri}: As it was already mentioned, this is \textit{where} to receive the AuthZ code.
@@ -304,7 +304,7 @@ This web-server implements four Servlets\footnote{Exploit dynamic web content wi
 
 \noindent It is important though to point out that the URIs are configured for the Docker virtualized network and they need to be changed to be run without Docker.
 
-The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is implemented in \textbf{AuthorizationCodeServlet.java} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \textcolor{blue}{\texttt{http://localhost:9180/callback?code=1\&state=tughdj57gh5h7t7fdhgwejgg}} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
+The first Servlet implements the AuthZ code request on the AuthZ server's endpoint and it is implemented in \textbf{AuthorizationCodeServlet.java} waiting to start on the \texttt{/authorization} endpoint of the client. More in details, the Servlet creates and stores the \texttt{state} param, retrieves the information from the MicroProfile Config file and builds the URI attaching all the variables. Finally, it redirects the user to the built URI (that is on the AuthZ server). After processing the request, the AuthZ server will redirect back the user to the client with the AuthZ code and the same \texttt{state} param on the URI \textcolor{blue}{\texttt{http://localhost:9180/callback?code=1\&state=tugh-\\dj57gh5h7t7fdhgwejgg}} where the second Servlet is waiting for the AuthZ code (the client server is on 9180, the AuthZ server is on 9080 and the resource server on 9280).
 
 The second Servlet starts as soon as the AuthZ server redirects back to \texttt{/callback} with the AuthZ code and the \texttt{state} as parameters (is the only Servlet not triggered by the user in this implementation). The implementation is in \textbf{CallbackServlet.java}. First, it checks the \texttt{state} match and then it uses the received code to request an access token. In this case, there is no browser interaction, it is all implemented through HTTP POST and JAX RS Client: here the token endpoint requires the two secrets too in the \textit{Authentication} header, along with the code, the type of the code and the redirect URI. Now the client has the access token (and the refresh token too) and it can access information on the resource server by using the third Servlet implemented in \textbf{DownstreamCallServlet.java} waiting on \texttt{/downstram} with two actions passed as query params: \textit{read} or \textit{write}. Based on the action, the Servlet calls the resource server's APIs with the access token in the Authorization HTTP header and receives a string if it has access or an HTTP Forbidden error if it does not.
 
@@ -520,7 +520,14 @@ Finally, to analyze and debug the messages exchanged in the Docker LAN, it has b
 
   \hspace{0.8cm} \texttt{termshark -i eth0 -Y http}
 
+\noindent As an example, if the container name of the Client (\texttt{oauth-hw-security-custom\_app-server\_1}) is set, it is possible to capture the AuthZ Code request and the JSON response of the AuthZ Server with the \texttt{access\_token} as shown in Fig.~\ref{fig:netshoot}.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{chapters/images/chp6/netshoot.png}
+    \caption{Termshark running on Netshoot: caption of the access token JSON response from the AuthZ Server to the Client.}
+    \label{fig:netshoot}
+\end{figure}
 % ------ END OF SECTION B.3.2 ------
 % ------ END OF SECTION B.3 ------
 
